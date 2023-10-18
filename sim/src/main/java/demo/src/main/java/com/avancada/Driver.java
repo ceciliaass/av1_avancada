@@ -3,6 +3,7 @@ package demo.src.main.java.com.avancada;
 //import de.tudresden.sumo.cmd.Route;
 import de.tudresden.sumo.cmd.Vehicle;
 import de.tudresden.sumo.objects.SumoStringList;
+import de.tudresden.sumo.util.SumoCommand;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 // import java.awt.Color;
@@ -128,7 +129,7 @@ public class Driver extends Thread{
     public void run() {
         try {
             System.out.println("solicita");
-            Thread.sleep(200);
+            //Thread.sleep(00);
             this.executar=this.carro.Solicita_rotas(this.inf,this.sup);
             System.out.println("solicitou");
             System.out.println(this.executar);
@@ -138,12 +139,8 @@ public class Driver extends Thread{
         initializeRoutes();
         this.carro.run();
         while (this.on_off) {
-            try {
-                this.sumo.do_timestep();
-                Thread.sleep(500);
-            } catch (Exception e) {
-            }
             if (this.sumo.isClosed()) {
+                carro.setOn_off(false);
                 this.on_off = false;
                 System.out.println("SUMO is closed...");
             }
@@ -175,6 +172,25 @@ public class Driver extends Thread{
                 //sumo.do_job_set(Vehicle.add(this.auto.getIdAuto(), "DEFAULT_VEHTYPE", this.itinerary.getIdItinerary(), 0,
                 //		0.0, 0, (byte) 0));
                 edge.clear();
+                // while(carro.getRotaAtual().equals(null)){
+                    
+                // sumo.do_job_set(Vehicle.addFull(this.carro.getIdAuto(), 				//vehID
+                //                                 executar.get(i).getIdItinerary(), 	//routeID 
+                //                                 "DEFAULT_VEHTYPE", 					//typeID 
+                //                                 "now", 								//depart  
+                //                                 "0", 								//departLane 
+                //                                 "0", 								//departPos 
+                //                                 "0",								//departSpeed
+                //                                 "current",							//arrivalLane 
+                //                                 "max",								//arrivalPos 
+                //                                 "current",							//arrivalSpeed 
+                //                                 "",									//fromTaz 
+                //                                 "",									//toTaz 
+                //                                 "", 								//line 
+                //                                 this.carro.getPersonCapacity(),		//personCapacity 
+                //                                 this.carro.getPersonNumber())		//personNumber
+                //         );
+                // }
             }
                 sumo.do_job_set(Vehicle.addFull(this.carro.getIdAuto(), 				//vehID
                                                 executar.get(0).getIdItinerary(), 	//routeID 
@@ -191,10 +207,11 @@ public class Driver extends Thread{
                                                 "", 								//line 
                                                 this.carro.getPersonCapacity(),		//personCapacity 
                                                 this.carro.getPersonNumber())		//personNumber
-                        );
-                
+                        );  
+                //sumo.do_(sim.traci4j.src.java.it.polito.appeal.traci.Vehicle.getCurrentRoute());
+                //sumo.do_job_set(Vehicle.setRoute(this.carro.getIdAuto(), ));
                 //sumo.do_job_set(Vehicle.setColor(this.carro.getIdAuto(), this.carro.getColorAuto()));
-                this.sumo.do_timestep();
+                //this.sumo.do_timestep();
             //}
         } catch (Exception e) {
                 e.printStackTrace();

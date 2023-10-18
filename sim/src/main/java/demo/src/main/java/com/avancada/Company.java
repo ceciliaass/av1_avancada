@@ -145,7 +145,7 @@ public class Company extends Thread {
     @Override
     public void run() {
         try{
-            System.out.println("RUN");
+            System.out.println("RuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuUN");
             //enviarMensagem("Company_Conectada");
             String msg;
             OutputStream ou =  this.con.getOutputStream();

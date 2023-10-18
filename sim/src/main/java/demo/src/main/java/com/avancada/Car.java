@@ -71,11 +71,17 @@ public class Car extends Vehicle implements Runnable {
 	@Override
 	public void run() {
 
-		while (this.on_off) {
+		while (!this.getSumo().isClosed()) {
 			try {
+				try {
+					this.sumo.do_timestep();
+					Thread.sleep(200);
+					System.out.println("aquuuuui");
+				} catch (Exception e) {
+				}
 				//Auto.sleep(this.acquisitionRate);
 				this.relatorio();
-				//this.distancia();
+				this.distancia();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -93,7 +99,8 @@ public class Car extends Vehicle implements Runnable {
 				System.out.println("RouteID: " + (String) this.sumo.do_job_get(getRouteID(this.idAuto)));
 				System.out.println("RouteIndex: " + this.sumo.do_job_get(getRouteIndex(this.idAuto)));
 				System.out.println("Position "+ sumo.do_job_get(getPosition(this.idAuto)).toString());
-
+				System.out.println("SSSDDDDDDDDDDDDDDDD "+ (double) sumo.do_job_get(getDistance(this.idAuto)));
+				
 				// setFuelTank(fuelTank- (double) sumo.do_job_get(getFuelConsumption(this.idAuto)));
 				// Json Json = new Json();
 				// double[] posi = (double[]) sumo.do_job_get(getPosition(this.idAuto));
@@ -111,6 +118,9 @@ public class Car extends Vehicle implements Runnable {
 				// // enviarMensagem(json_relatorio);
 				// // enviarMensagem(json_relatorio);
 				// rota_atual = (String) this.sumo.do_job_get(getRoute(this.idAuto));
+				// sumo.do_job_set(Vehicle.setSpeedMode(this.idAuto, 0));
+				// sumo.do_job_set(Vehicle.setSpeed(this.idAuto, 20));
+
 			} else {
 				System.out.println("SUMO is closed...");
 			}
@@ -120,11 +130,14 @@ public class Car extends Vehicle implements Runnable {
 	}
 
 	private void distancia() throws Exception{
-		if(distancia + 1.00 == (double) sumo.do_job_get(getDistance(this.idAuto))){
-			Json json = new Json();
-			
-			enviarMensagem(json.Json_pagamentoDriver("pagar", this.contaDriver));
-			distancia = distancia + 1.00;
+		if(!this.getSumo().isClosed()){
+			if(distancia+1000 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
+				Json json = new Json();
+				
+				enviarMensagem(json.Json_pagamentoDriver("pagar", this.contaDriver));
+				distancia = distancia + 1000;
+				System.out.println("DISTÂNCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA "+distancia);
+			}
 		}
 	}
 
@@ -246,7 +259,7 @@ public class Car extends Vehicle implements Runnable {
 		msg = crpt.encrypt(msg, crpt.genKey(msg.length()));
         bfw.write(msg+"\r\n");    
         bfw.flush();
-		System.out.println("ENVIAR");
+		System.out.println("ENVIAAAAAAAAAAAAR");
     }
 
     /**

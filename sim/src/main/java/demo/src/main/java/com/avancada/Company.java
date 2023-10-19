@@ -46,6 +46,7 @@ import org.w3c.dom.Node;
 
 //import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
@@ -211,8 +212,9 @@ public class Company extends Thread {
     /**
      * @param mensagem
      * @throws IOException
+     * @throws InterruptedException
      */
-    private void Gerar_relatorio(JSONObject mensagem) throws IOException{
+    private void Gerar_relatorio(JSONObject mensagem) throws IOException, InterruptedException{
 
         String excelFilePath = "sim/data/relatorio.xlsx";
         FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
@@ -253,6 +255,7 @@ public class Company extends Thread {
         workbook.write(out);
         out.close();
         workbook.close();
+        Thread.sleep(200);
         System.out.println("Arquivo Excel atualizado com sucesso!"); 
         
     }

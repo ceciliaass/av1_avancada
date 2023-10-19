@@ -21,7 +21,7 @@ public class Main {
 
     public SumoTraciConnection ativarSumo(){
         String sumo_bin = "sumo-gui";		
-		String config_file = "map/map.sumo.cfg";
+		String config_file = "sim/map/map.sumo.cfg";
 		SumoTraciConnection sumo;
         sumo = new SumoTraciConnection(sumo_bin, config_file);
 		sumo.addOption("start", "1"); // auto-run on GUI show

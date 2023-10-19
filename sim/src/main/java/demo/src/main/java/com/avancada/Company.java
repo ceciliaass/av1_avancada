@@ -188,7 +188,7 @@ public class Company extends Thread {
                     executando.add((Route) mensagem.get("rota"));
                 }
                 if(mensagem.get("mensagem").equals("pagar")){
-                    System.out.println("" + mensagem.get("conta"));
+                    //System.out.println("" + mensagem.get("conta"));
                     //(MyClass) Base64.getDecoder().decode(encodedString);
 
                     //Object obj = Class.forName((String) mensagem.get("conta")).newInstance();
@@ -214,7 +214,7 @@ public class Company extends Thread {
      */
     private void Gerar_relatorio(JSONObject mensagem) throws IOException{
 
-        String excelFilePath = "data/relatorio.xlsx";
+        String excelFilePath = "sim/data/relatorio.xlsx";
         FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
         XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
         int rowCount = workbook.getSheetAt(0).getPhysicalNumberOfRows();
@@ -230,30 +230,30 @@ public class Company extends Thread {
         IdRoute.setCellValue((String) mensagem.get("IDroute"));
 
         Cell Speed = row.createCell(cellnum++);
-        Speed.setCellValue((double) mensagem.get("Speed"));
+        Speed.setCellValue(Double.parseDouble(mensagem.get("Speed").toString()));
 
         Cell Distance = row.createCell(cellnum++);
-        Distance.setCellValue((double) mensagem.get("distance"));
+        Distance.setCellValue(Double.parseDouble(mensagem.get("Distance").toString()));
 
         Cell FuelConsumption = row.createCell(cellnum++);
-        FuelConsumption.setCellValue((double) mensagem.get("FuelConsumption"));
+        FuelConsumption.setCellValue(Double.parseDouble(mensagem.get("FuelConsumption").toString()));
 
         Cell FuelType = row.createCell(cellnum++);
-        FuelType.setCellValue((double) mensagem.get("FuelType"));
+        FuelType.setCellValue(Double.parseDouble(mensagem.get("FuelType").toString()));
 
         Cell CO2Emission = row.createCell(cellnum++);
-        CO2Emission.setCellValue((double) mensagem.get("CO2Emission"));
+        CO2Emission.setCellValue(Double.parseDouble(mensagem.get("CO2Emission").toString()));
 
         Cell Lat = row.createCell(cellnum++);
-        Lat.setCellValue((double) mensagem.get("Lat"));
+        Lat.setCellValue(Double.parseDouble(mensagem.get("Lat").toString()));
 
         Cell Lon = row.createCell(cellnum++);
-        Lon.setCellValue((double) mensagem.get("Lon"));
+        Lon.setCellValue(Double.parseDouble(mensagem.get("Lon").toString()));
         FileOutputStream out = new FileOutputStream(new File(excelFilePath));
         workbook.write(out);
         out.close();
         workbook.close();
-        System.out.println("Arquivo Excel criado com sucesso!"); 
+        System.out.println("Arquivo Excel atualizado com sucesso!"); 
         
     }
 
@@ -266,7 +266,7 @@ public class Company extends Thread {
     public void sendRoutes(BufferedWriter bwSaida) throws  Exception
     {   
         Cryptography crpt = new Cryptography();
-        System.out.println("sendRoute");
+       // System.out.println("sendRoute");
         String msg = distribuindo_rotas();
         bwSaida.write(crpt.encrypt(msg,crpt.genKey(msg.length()))+"\r\n");
         bwSaida.flush();
@@ -286,7 +286,7 @@ public class Company extends Thread {
     }
 
     public void Definir_percurso(){
-        String uriItineraryXML = "data/data_route.xml";
+        String uriItineraryXML = "sim/data/data_route.xml";
         //SumoStringList edge = new SumoStringList();
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -317,8 +317,8 @@ public class Company extends Thread {
     
     private String distribuindo_rotas(){
         Json json = new Json();
-        System.out.println("destribuindo");
-        System.out.println("MEU VETOR DE ROTAS: "+rotas.size());
+        //System.out.println("destribuindo");
+       // System.out.println("MEU VETOR DE ROTAS: "+rotas.size());
 
         ArrayList<String> auxedges = new ArrayList<String>();
         ArrayList<String> auxid = new ArrayList<String>();
@@ -326,7 +326,7 @@ public class Company extends Thread {
             auxid.add(executar.get(j).getIdItinerary());
             auxedges.add(executar.get(j).getEdges());
         }
-        System.out.println("MEU VETOR DE ROTAS: "+executar.size());
+       // System.out.println("MEU VETOR DE ROTAS: "+executar.size());
         return json.Json_Rotas(auxid, auxedges);
     }
     

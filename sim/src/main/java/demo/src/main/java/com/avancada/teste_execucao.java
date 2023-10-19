@@ -149,47 +149,84 @@ public class teste_execucao {
 
 
 
-	String excelFilePath = "sim/data/relatorio.xlsx";
-	FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
-	XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
-	int rowCount = workbook.getSheetAt(0).getPhysicalNumberOfRows();
-	Row row = workbook.getSheetAt(0).createRow(rowCount);
-	int cellnum = 0;
-	Cell timestamp = row.createCell(cellnum++);
-	timestamp.setCellValue((long) System.currentTimeMillis() * 1000000);
+	// String excelFilePath = "sim/data/relatorio.xlsx";
+	// FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+	// XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+	// int rowCount = workbook.getSheetAt(0).getPhysicalNumberOfRows();
+	// Row row = workbook.getSheetAt(0).createRow(rowCount);
+	// int cellnum = 0;
+	// Cell timestamp = row.createCell(cellnum++);
+	// timestamp.setCellValue((long) System.currentTimeMillis() * 1000000);
 
-	Cell IdCar = row.createCell(cellnum++);
-	IdCar.setCellValue((String) "IDcar");
+	// Cell IdCar = row.createCell(cellnum++);
+	// IdCar.setCellValue((String) "IDcar");
 
-	Cell IdRoute = row.createCell(cellnum++);
-	IdRoute.setCellValue((String) "IDroute");
+	// Cell IdRoute = row.createCell(cellnum++);
+	// IdRoute.setCellValue((String) "IDroute");
 
-	Cell Speed = row.createCell(cellnum++);
-	Speed.setCellValue((double) 6.25);
+	// Cell Speed = row.createCell(cellnum++);
+	// Speed.setCellValue((double) 6.25);
 
-	Cell Distance = row.createCell(cellnum++);
-	Distance.setCellValue((double) 6.25);
+	// Cell Distance = row.createCell(cellnum++);
+	// Distance.setCellValue((double) 6.25);
 
-	Cell FuelConsumption = row.createCell(cellnum++);
-	FuelConsumption.setCellValue((double) 6.25);
+	// Cell FuelConsumption = row.createCell(cellnum++);
+	// FuelConsumption.setCellValue((double) 6.25);
 
-	Cell FuelType = row.createCell(cellnum++);
-	FuelType.setCellValue((double)  6.25);
+	// Cell FuelType = row.createCell(cellnum++);
+	// FuelType.setCellValue((double)  6.25);
 
-	Cell CO2Emission = row.createCell(cellnum++);
-	CO2Emission.setCellValue((double)  6.25);
+	// Cell CO2Emission = row.createCell(cellnum++);
+	// CO2Emission.setCellValue((double)  6.25);
 
-	Cell Lat = row.createCell(cellnum++);
-	Lat.setCellValue((double)  6.25);
+	// Cell Lat = row.createCell(cellnum++);
+	// Lat.setCellValue((double)  6.25);
 
-	Cell Lon = row.createCell(cellnum++);
-	Lon.setCellValue((double)  6.25);
-	FileOutputStream out = new FileOutputStream(new File(excelFilePath));
-	workbook.write(out);
-	out.close();
-	workbook.close();
-	System.out.println("Arquivo Excel criado com sucesso!"); 
-	
+	// Cell Lon = row.createCell(cellnum++);
+	// Lon.setCellValue((double)  6.25);
+	// FileOutputStream out = new FileOutputStream(new File(excelFilePath));
+	// workbook.write(out);
+	// out.close();
+	// workbook.close();
+	// System.out.println("Arquivo Excel criado com sucesso!"); 
+	double fuelPrice = 5.87;
+        // fuelType: 1-diesel, 2-gasoline, 3-ethanol, 4-hybrid
+        ArrayList<Car> carros = new ArrayList<Car>();
+        ArrayList<Driver> motoristas = new ArrayList<Driver>();
+		int fuelType = 2;
+        Main principal = new Main();
+        SumoTraciConnection sumo;
+        sumo = principal.ativarSumo();
+        try {
+            sumo.runServer(12345);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	AlphaBank.main(args);
+
+        Company.main(args);
+        //FuelStation posto = new FuelStation();
+        Cryptography crpt = new Cryptography();
+        for(int i=0; i<1;i++){
+            //Account conta = new Account(50.0, "abc", "123");
+            Car carro = new Car(true, ("455k"+i) /*,("D"+i)*/, sumo,fuelType, fuelPrice, i);
+            //carro.Solicita_rotas();
+            System.out.println(sumo);
+            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*9, (i*9)+9);
+            motorista.conectar();
+            motorista.start();
+            //Thread.sleep(5000);
+            motoristas.add(motorista);
+
+        // //     motorista.carro.Solicita_rotas();
+        // // //     motorista.enviarMensagem("socorro"+i);
+        // //     //motorista.escutar();
+        // //     // // motorista.start();
+        //     Json json = new Json();
+		//     String msg= json.Json_mensagens("deus");
+        //     carro.enviarMensagem(msg);
+            
+        }
 
     }
 }

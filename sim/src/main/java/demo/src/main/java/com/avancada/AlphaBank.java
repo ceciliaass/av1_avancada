@@ -47,7 +47,7 @@ public class AlphaBank extends Thread{
     public void run(){
 
         try{
-
+            //System.out.println("TO NO RUN DO ALPHAAAAAAA");
             String msg;
             OutputStream ou =  this.con.getOutputStream();
             Writer ouw = new OutputStreamWriter(ou);
@@ -62,16 +62,20 @@ public class AlphaBank extends Thread{
                 msg = bfr.readLine();
                 //System.out.println(msg);
                 msg = crpt.decrypt(msg, crpt.genKey(msg.length()));
-                //System.out.println(msg);
+                System.out.println(msg);
                 JSONObject mensagem = new JSONObject(msg);
                 if(mensagem.get("mensagem").equals("ver saldo")){
+                    System.out.println("to no ver saldo ");
                     sendSaldo(bfw, getSaldo((int) mensagem.get("conta")));
                 }
                 if(mensagem.get("mensagem").equals("transacao")){
+                    System.out.println("transacaaaaaaao");
                     saque( Double.parseDouble(mensagem.get("valor").toString()), (int) mensagem.get("conta_pagando"));
+                    contas.get(((int) mensagem.get("conta_pagando"))).recebe_ContaTranferencia("pagou",   Double.parseDouble(mensagem.get("valor").toString()), (int) mensagem.get("conta_recebendo"));
                     deposito( Double.parseDouble(mensagem.get("valor").toString()), (int) mensagem.get("conta_recebendo"));
+                    contas.get(((int) mensagem.get("conta_recebendo"))).recebe_ContaTranferencia("recebeu" , Double.parseDouble(mensagem.get("valor").toString()),(int) mensagem.get("conta_pagando"));
                     sendToAll(bfw, msg);
-                    System.out.println("saldooooooooooo pagando" + getSaldo((int) mensagem.get("conta_pagando")));
+                    System.out.println("saldooooooooooo recebendo" + getSaldo((int) mensagem.get("conta_recebendo")));
                 }
             }
 
@@ -82,10 +86,12 @@ public class AlphaBank extends Thread{
     }
 
     public void sendSaldo(BufferedWriter bwSaida, double msg) throws  IOException
-    {
+    {   
+        Json json = new Json();
         BufferedWriter bwS;
-        bwSaida.write(msg+"\r\n");
+        bwSaida.write(json.Json_saldo(msg, 101)+"\r\n");
         bwSaida.flush();
+        System.out.println("envieeeeei o saaaldo");
         }
     
 
@@ -97,9 +103,9 @@ public class AlphaBank extends Thread{
      */
     public void sendToAll(BufferedWriter bwSaida, String msg) throws  IOException
     {
-    
-            bwSaida.write(nome + " -> " + msg+"\r\n");
-            bwSaida.flush();
+
+        bwSaida.write(msg);
+        bwSaida.flush();
 //            }
         }
     
@@ -110,8 +116,8 @@ public class AlphaBank extends Thread{
 
         }else{
             contas.get(i).setSaldo(contas.get(i).getSaldo(contas.get(i).getLogin(), contas.get(i).getSenha())-valor,contas.get(i).getLogin(), contas.get(i).getSenha());
-        }
-        contas.get(i).start();
+            contas.get(i).start();
+            }
     }
 
     private void deposito(Double valor, int i){
@@ -126,13 +132,13 @@ public class AlphaBank extends Thread{
     public static void main(String []args) {
         ArrayList<Account> contass = new ArrayList<Account>();
         for(int i=0;i<100;i++){
-            contass.add(new Account(50.0, "abc", "123"));
+            contass.add(new Account(50.0, "abc", "123", i));
             //contass.get(i).start();
         }
-        contass.add(new Account(500000.0, "abc", "123"));
+        contass.add(new Account(500000.0, "abc", "123", 100));
        // contass.get(100).start();
 
-        contass.add(new Account(50.0, "abc", "123"));
+        contass.add(new Account(50.0, "abc", "123", 101));
        // contass.get(101).start();
 
         // for(int i=0;i<102;i++){

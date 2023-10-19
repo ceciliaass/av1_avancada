@@ -45,8 +45,9 @@ public class Driver extends Thread{
     //private String txtNome;
     Socket con;
     private boolean on_off;
-    int inf;
-    int sup;
+    private int inf;
+    private int sup;
+    private Boolean abastecendo;
     public Driver(Car carro, SumoTraciConnection sumo, String txtNome /*AlphaBank banco*/, int conta, int inf, int sup) throws IOException{
         
         this.txtIP = "127.0.0.2";
@@ -62,6 +63,7 @@ public class Driver extends Thread{
         this.on_off=true;
         this.inf=inf;
         this.sup = sup;
+        this.abastecendo= false;
     }
 
     /***
@@ -87,6 +89,7 @@ public class Driver extends Thread{
 		msg= crpt.encrypt(msg, crpt.genKey(msg.length()));
         bfw.write(msg+"\r\n");    
         bfw.flush();
+        System.out.println("tooo no envirar do driveeeeer");
     }
 
     /**
@@ -138,13 +141,13 @@ public class Driver extends Thread{
         initializeRoutes();
         Thread thread = new Thread (carro);
         thread.start();
-        //this.carro.run();
-        while (this.on_off) {
-            System.out.println(this.carro.getFuelTank());
-            if(this.carro.getFuelTank()<=3.0){
+        while (!this.sumo.isClosed()) {
+            //System.out.println(this.carro.getFuelTank());
+            if(this.carro.getFuelTank()<=3.0 & this.abastecendo==false){
                 try {
                     Thread posto = new FuelStation(this);
                     posto.start();
+                    System.out.println(this.carro.getFuelTank());
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -170,6 +173,9 @@ public class Driver extends Thread{
         //}
     }
 
+    public void setAbastecendo(Boolean situacao){
+        this.abastecendo = situacao;
+    }
     private void initializeRoutes() {
 
 		SumoStringList edge = new SumoStringList();
@@ -293,7 +299,9 @@ public class Driver extends Thread{
                 Json json = new Json();
 
                 try {
+                
                     enviarMensagem(json.Json_pagamento(conta, conta_recebendo, valor));
+                    System.out.println("aquuuuuuuuuuuuui");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

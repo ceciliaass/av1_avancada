@@ -58,6 +58,11 @@ public class Json{
 		return my_obj.toString();
 	}
 
+	public String Json_pagamentoFuel(String mensagem, int conta){
+		my_obj.put("mensagem", mensagem);
+		my_obj.put("conta", conta);
+		return my_obj.toString();
+	}
     public String Json_RelatorioCar(long timestamp, String IdCar, String IdRoute, Double Speed, Double distance, Double FuelConsumption, int FuelType, Double CO2Emission, Double Lat, Double Lon ){
 		my_obj.put("mensagem", "relatorio");
 		//preenche o objeto com os campos: titulo, ano e genero
@@ -100,4 +105,10 @@ public class Json{
 	}
 
 
+	public String Json_saldo(double saldo, int conta_perguntando){
+		my_obj.put("mensagem", "ver saldo");
+		my_obj.put("saldo", saldo);
+		my_obj.put("conta_recebendo", conta_perguntando);
+		return my_obj.toString();
+	}
 }

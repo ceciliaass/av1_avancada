@@ -1,6 +1,6 @@
 package demo.src.main.java.com.avancada;
 
-public class Account implements Runnable {
+public class Account extends Thread {
     private String login;
     private String senha;
     private double saldo;
@@ -47,8 +47,7 @@ public class Account implements Runnable {
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'run'");
+        System.out.println("saldo: " +this.saldo);
     }
     
 }

@@ -14,9 +14,9 @@ import org.json.JSONObject;
 
 public class FuelStation extends  Thread{
     //private int bombas;
-    private Account conta;
+    private int conta;
     private boolean on_off;
-
+    private double quant_abastecimento;
     private Socket socket;
     private OutputStream ou ;
     private Writer ouw;
@@ -28,12 +28,12 @@ public class FuelStation extends  Thread{
 
     public FuelStation(Driver cliente) throws IOException{
 
-        
+        this.quant_abastecimento = 0;
         this.txtIP ="127.0.0.2";
         this.txtPorta = "12347";
         this.txtNome = "FuelStation";
         this.cliente = cliente;
-        this.conta = new Account(0, "abc","111");
+        this.conta = 101;
         //this.bombas = 2;
         this.on_off = true;
         conectar();
@@ -61,6 +61,7 @@ public class FuelStation extends  Thread{
     public void enviarMensagem(String msg) throws Exception{
 		Cryptography crpt = new Cryptography();
 		msg=crpt.encrypt(msg, crpt.genKey(msg.length()));
+
         bfw.write(msg+"\r\n");    
         bfw.flush();
     }
@@ -80,10 +81,14 @@ public class FuelStation extends  Thread{
 
             if(bfr.ready()){
                 msg = bfr.readLine();
-                JSONObject mensagem = new JSONObject(msg);
-                if(mensagem.get("conta_recebendo")==this.conta){
-                    conta.setSaldo(conta.getSaldo(conta.getLogin(), conta.getSenha())+ (double) mensagem.get("valor"),conta.getLogin(), conta.getSenha());
-                }
+                System.out.println(msg);
+                //JSONObject mensagem = new JSONObject(msg);
+                // if((int) mensagem.get("conta_recebendo")==this.conta){
+                //    System.out.println("pagamento recebido");
+                // }
+                // else{
+                //     quant_abastecimento = (double)  mensagem.get("saldo motorista");
+                // }
             }
     }
 
@@ -104,20 +109,23 @@ public class FuelStation extends  Thread{
     @Override
     public void run() {
         double qtd_combustivel = 0;
-        while(getOn_off()){
+        //while(getOn_off()){
                 //abastecer
-               qtd_combustivel = cliente.getSaldo()/5.87;
+                try {
+                    conectar();
+                    Json json = new Json();
+		            enviarMensagem(json.Json_versaldo(cliente.getConta()));
+                    escutar();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } 
+
+               qtd_combustivel = this.quant_abastecimento/5.87;
                cliente.getCar().setFuelTank(qtd_combustivel + cliente.getCar().getFuelTank());
                //sacar da conta do driver
-               cliente.setfuelDivida(this.conta, cliente.getSaldo());
-               try {
-                escutar();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+               cliente.setfuelDivida(this.conta, this.quant_abastecimento);
             }
-            }
-        }
+        //}
 
    
     public void setOn_off(){

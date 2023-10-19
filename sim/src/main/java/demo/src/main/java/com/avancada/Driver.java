@@ -3,7 +3,6 @@ package demo.src.main.java.com.avancada;
 //import de.tudresden.sumo.cmd.Route;
 import de.tudresden.sumo.cmd.Vehicle;
 import de.tudresden.sumo.objects.SumoStringList;
-import de.tudresden.sumo.util.SumoCommand;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 // import java.awt.Color;
@@ -28,7 +27,7 @@ import org.json.JSONObject;
 
 public class Driver extends Thread{
     Car carro;
-    private Account conta;
+    private int conta;
     //private AlphaBank banco;
     private SumoTraciConnection sumo;
 
@@ -48,7 +47,7 @@ public class Driver extends Thread{
     private boolean on_off;
     int inf;
     int sup;
-    public Driver(Car carro, SumoTraciConnection sumo, String txtNome /*AlphaBank banco*/, Account conta, int inf, int sup) throws IOException{
+    public Driver(Car carro, SumoTraciConnection sumo, String txtNome /*AlphaBank banco*/, int conta, int inf, int sup) throws IOException{
         
         this.txtIP = "127.0.0.2";
         this.txtPorta = "12347";
@@ -105,8 +104,8 @@ public class Driver extends Thread{
 
                 msg = bfr.readLine();
                 JSONObject mensagem = new JSONObject(msg);
-                if(mensagem.get("conta_recebendo")==this.conta){
-                    conta.setSaldo(conta.getSaldo(conta.getLogin(), conta.getSenha())+ (double) mensagem.get("valor"),conta.getLogin(), conta.getSenha());
+                if((int) mensagem.get("conta_recebendo")==this.conta){
+                    System.out.println("Motorista recebendo");
                 }
                 System.out.println(msg);
             }
@@ -128,17 +127,29 @@ public class Driver extends Thread{
     @Override
     public void run() {
         try {
-            System.out.println("solicita");
+           // System.out.println("solicita");
             //Thread.sleep(00);
             this.executar=this.carro.Solicita_rotas(this.inf,this.sup);
-            System.out.println("solicitou");
-            System.out.println(this.executar);
+            //.out.println("solicitou");
+            //System.out.println(this.executar);
         } catch (Exception e) {
             e.printStackTrace();
         }
         initializeRoutes();
-        this.carro.run();
+        Thread thread = new Thread (carro);
+        thread.start();
+        //this.carro.run();
         while (this.on_off) {
+            System.out.println(this.carro.getFuelTank());
+            if(this.carro.getFuelTank()<=3.0){
+                try {
+                    Thread posto = new FuelStation(this);
+                    posto.start();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             if (this.sumo.isClosed()) {
                 carro.setOn_off(false);
                 this.on_off = false;
@@ -218,14 +229,14 @@ public class Driver extends Thread{
             }
 	}
 
-    public void setfuelDivida(Account contaFuelStation, double fuelDivida){
-        BotPayment botPayment = new BotPayment(contaFuelStation,fuelDivida);
+    public void setfuelDivida(int contaFuelStation, double fuelDivida){
+        BotPayment botPayment = new BotPayment(contaFuelStation, fuelDivida);
         Thread t1 = new Thread(botPayment);
         t1.start();
     }
 
-    public double getSaldo(){
-        return conta.getSaldo(conta.getLogin(), conta.getSenha());
+    public int getConta(){
+        return conta;
     }
      
     public Car getCar(){
@@ -266,11 +277,11 @@ public class Driver extends Thread{
 
 
     class BotPayment extends Thread{
-        private Account conta_recebendo;
+        private int conta_recebendo;
 
         private Double valor;
         private boolean on_off;
-        public BotPayment(Account contaRecebendo,double valor){
+        public BotPayment(int contaRecebendo,double valor){
             this.conta_recebendo = contaRecebendo;
             this.valor = valor;
             this.on_off = true;
@@ -278,7 +289,7 @@ public class Driver extends Thread{
 
         @Override
         public void run() {
-            while(getOn_off()){
+
                 Json json = new Json();
 
                 try {
@@ -288,7 +299,7 @@ public class Driver extends Thread{
                 }
                 // conta.setSaldo(conta.getSaldo(conta.getLogin(), conta.getSenha())-this.valor,conta.getLogin(), conta.getSenha());
                 // conta_recebendo.setSaldo(conta_recebendo.getSaldo(conta_recebendo.getLogin(), conta_recebendo.getSenha())-this.valor,conta_recebendo.getLogin(), conta_recebendo.getSenha());
-            } 
+            
         }
         
 

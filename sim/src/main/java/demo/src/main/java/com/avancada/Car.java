@@ -20,7 +20,9 @@ import org.json.JSONObject;
 //import org.python.antlr.PythonParser.return_stmt_return;
 
 import de.tudresden.sumo.objects.SumoColor;
-import io.sim.DrivingData;
+import de.tudresden.sumo.objects.SumoPosition2D;
+import de.tudresden.sumo.objects.SumoPosition3D;
+//import io.sim.DrivingData;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class Car extends Vehicle implements Runnable {
@@ -31,7 +33,7 @@ public class Car extends Vehicle implements Runnable {
     private BufferedWriter bfw;
     private String txtIP;
     private String txtPorta;
-    private String txtNome;
+    //private String txtNome;
 
 	private Double fuelTank = 10.0;
 	private String idAuto;
@@ -47,14 +49,14 @@ public class Car extends Vehicle implements Runnable {
 	private int personNumber;		// the total number of persons which are riding in this vehicle
 	private double distancia;
 
-	private ArrayList<DrivingData> drivingRepport;
+	//private ArrayList<DrivingData> drivingRepport;
 	private String rota_atual;
-	private Account contaDriver;
-	Car(boolean _on_off, String _idAuto/*, String _driverID*/, SumoTraciConnection _sumo, int fuelType, double _fuelPrice, Account contaDriver) throws IOException {
+	private int contaDriver;
+	Car(boolean _on_off, String _idAuto/*, String _driverID*/, SumoTraciConnection _sumo, int fuelType, double _fuelPrice, int contaDriver) throws IOException {
 		super(); 
         this.txtIP = ("127.0.0.1");
         this.txtPorta = "12346";
-        this.txtNome = _idAuto;
+        //this.txtNome = _idAuto;
 
 		this.on_off = _on_off;
 		this.idAuto = _idAuto;
@@ -63,9 +65,9 @@ public class Car extends Vehicle implements Runnable {
 		this.contaDriver = contaDriver;
 		this.fuelPrice = _fuelPrice;
 		this.fuelType = fuelType;
-		this.drivingRepport = new ArrayList<DrivingData>();
+		//this.drivingRepport = new ArrayList<DrivingData>();
 		this.distancia =0;
-		//conectar();
+		conectar();
 	}
 
 	@Override
@@ -76,7 +78,6 @@ public class Car extends Vehicle implements Runnable {
 				try {
 					this.sumo.do_timestep();
 					Thread.sleep(200);
-					System.out.println("aquuuuui");
 				} catch (Exception e) {
 				}
 				//Auto.sleep(this.acquisitionRate);
@@ -94,28 +95,30 @@ public class Car extends Vehicle implements Runnable {
 
 			if (!this.getSumo().isClosed()) {
 
-				System.out.println("AutoID: " + this.getIdAuto());
-				System.out.println("RoadID: " + (String) this.sumo.do_job_get(getRoadID(this.idAuto)));
-				System.out.println("RouteID: " + (String) this.sumo.do_job_get(getRouteID(this.idAuto)));
-				System.out.println("RouteIndex: " + this.sumo.do_job_get(getRouteIndex(this.idAuto)));
-				System.out.println("Position "+ sumo.do_job_get(getPosition(this.idAuto)).toString());
-				System.out.println("SSSDDDDDDDDDDDDDDDD "+ (double) sumo.do_job_get(getDistance(this.idAuto)));
+				// System.out.println("AutoID: " + this.getIdAuto());
+				// System.out.println("RoadID: " + (String) this.sumo.do_job_get(getRoadID(this.idAuto)));
+				// System.out.println("RouteID: " + (String) this.sumo.do_job_get(getRouteID(this.idAuto)));
+				// System.out.println("RouteIndex: " + this.sumo.do_job_get(getRouteIndex(this.idAuto)));
+				// System.out.println("Position "+ sumo.do_job_get(getPosition(this.idAuto)).toString());
+				//System.out.println("SSSDDDDDDDDDDDDDDDD "+ (double) sumo.do_job_get(getDistance(this.idAuto)));
 				
-				// setFuelTank(fuelTank- (double) sumo.do_job_get(getFuelConsumption(this.idAuto)));
-				// Json Json = new Json();
-				// double[] posi = (double[]) sumo.do_job_get(getPosition(this.idAuto));
-				// double[] coord= converterGeo(posi[0], posi[1]);
-				// String json_relatorio= Json.Json_RelatorioCar(System.currentTimeMillis() * 1000000, this.idAuto, 
-				// 								(String) this.sumo.do_job_get(getRouteID(this.idAuto)), 
-				// 								(double) this.drivingRepport.get(this.drivingRepport.size() - 1).getSpeed(), 
-				// 								(double) sumo.do_job_get(getDistance(this.idAuto)), 
-				// 								(double) sumo.do_job_get(getFuelConsumption(this.idAuto)), 
-				// 								this.fuelType, 
-				// 								(double) sumo.do_job_get(getCO2Emission(this.idAuto)), 
-				// 								coord[0], 
-				// 								coord[1]);
-				// //System.out.println(json_relatorio);
-				// // enviarMensagem(json_relatorio);
+				setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))/1000);
+				System.out.println("TAAAAAAAAAAAAAAAAAAAAAAAAAAAAANK                                           "+fuelTank );
+				Json Json = new Json();
+				//SumoPosition3D posicion = (SumoPosition3D) sumo.do_job_get(getPosition(this.idAuto));
+				//double[] coord= converterGeo((double) posicion.x, (double) posicion.y, (double) posicion.z);
+				String json_relatorio= Json.Json_RelatorioCar(System.currentTimeMillis() * 1000000, this.idAuto, 
+												(String) this.sumo.do_job_get(getRouteID(this.idAuto)), 
+												(double) sumo.do_job_get(getSpeed(this.idAuto)), 
+												(double) sumo.do_job_get(getDistance(this.idAuto)), 
+												(double) sumo.do_job_get(getFuelConsumption(this.idAuto)), 
+												this.fuelType, 
+												(double) sumo.do_job_get(getCO2Emission(this.idAuto)), 
+												/*coord[0]*/11.0, 
+												/*coord[1]*/12.0);
+				//System.out.println(json_relatorio);
+				conectar();
+				enviarMensagem(json_relatorio);
 				// // enviarMensagem(json_relatorio);
 				// rota_atual = (String) this.sumo.do_job_get(getRoute(this.idAuto));
 				// sumo.do_job_set(Vehicle.setSpeedMode(this.idAuto, 0));
@@ -133,20 +136,22 @@ public class Car extends Vehicle implements Runnable {
 		if(!this.getSumo().isClosed()){
 			if(distancia+1000 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
 				Json json = new Json();
-				
+				conectar();
 				enviarMensagem(json.Json_pagamentoDriver("pagar", this.contaDriver));
 				distancia = distancia + 1000;
-				System.out.println("DISTÂNCIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA "+distancia);
+				System.out.println("DISTÂNCIAAAAAAAAAAAAAAAAAAA "+distancia);
 			}
 		}
 	}
 
-	private double[] converterGeo(Double x, Double y) {
+
+	private double[] converterGeo(Double x, Double y, Double z) {
 		
-		double EARTH_RADIUS = 6371.0;
+		//double EARTH_RADIUS = 6371.0;
 		x = x*1000000000;
 		y = y*1000000000;
-		double z = Math.sqrt(Math.pow(EARTH_RADIUS, 2) - Math.pow(x, 2) - Math.pow(y, 2));
+		z = z*1000000000;
+		// double z = Math.sqrt(Math.pow(EARTH_RADIUS, 2) - Math.pow(x, 2) - Math.pow(y, 2));
 		double longitude = Math.atan(y / x);
 		double latitude = Math.atan(z / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
 
@@ -217,7 +222,7 @@ public class Car extends Vehicle implements Runnable {
      * @throws IOException
      */
     public void conectar() throws IOException{
-		System.out.println("conectar");
+		//System.out.println("conectar");
         socket = new Socket(this.txtIP,Integer.parseInt(this.txtPorta));
         ou = socket.getOutputStream();
         ouw = new OutputStreamWriter(ou);
@@ -259,7 +264,7 @@ public class Car extends Vehicle implements Runnable {
 		msg = crpt.encrypt(msg, crpt.genKey(msg.length()));
         bfw.write(msg+"\r\n");    
         bfw.flush();
-		System.out.println("ENVIAAAAAAAAAAAAR");
+		//System.out.println("Enviiiiiiiiiiiiiiiiiiiiiiiiiiiiar");
     }
 
     /**
@@ -296,6 +301,7 @@ public class Car extends Vehicle implements Runnable {
         ou.close();
         socket.close();
     }
+
 
 
 }

@@ -1,5 +1,11 @@
 package demo.src.main.java.com.avancada;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 // import java.net.ServerSocket;
 // import java.net.Socket;
@@ -12,6 +18,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -125,20 +132,65 @@ public class teste_execucao {
 // 		// 			e.printStackTrace();
 // 		// 		}
 // 		// 	}
-    Cryptography crpt = new Cryptography();
-    for(int i=0; i<3;i++){
+//     Cryptography crpt = new Cryptography();
+//     for(int i=0; i<3;i++){
 	
-		try {
-			String msg = "A barata diz que tem";
-			String en = crpt.encrypt(msg, crpt.genKey(msg.length()));
-			System.out.println(en);
+// 		try {
+// 			String msg = "A barata diz que tem";
+// 			String en = crpt.encrypt(msg, crpt.genKey(msg.length()));
+// 			System.out.println(en);
 			
-			System.out.println(crpt.decrypt(en, crpt.genKey(en.length())));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-// 		Company conm = new Company();
-        }
+// 			System.out.println(crpt.decrypt(en, crpt.genKey(en.length())));
+// 		} catch (Exception e) {
+// 			e.printStackTrace();
+// 		}
+// // 		Company conm = new Company();
+//         }
+
+
+
+	String excelFilePath = "sim/data/relatorio.xlsx";
+	FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+	XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+	int rowCount = workbook.getSheetAt(0).getPhysicalNumberOfRows();
+	Row row = workbook.getSheetAt(0).createRow(rowCount);
+	int cellnum = 0;
+	Cell timestamp = row.createCell(cellnum++);
+	timestamp.setCellValue((long) System.currentTimeMillis() * 1000000);
+
+	Cell IdCar = row.createCell(cellnum++);
+	IdCar.setCellValue((String) "IDcar");
+
+	Cell IdRoute = row.createCell(cellnum++);
+	IdRoute.setCellValue((String) "IDroute");
+
+	Cell Speed = row.createCell(cellnum++);
+	Speed.setCellValue((double) 6.25);
+
+	Cell Distance = row.createCell(cellnum++);
+	Distance.setCellValue((double) 6.25);
+
+	Cell FuelConsumption = row.createCell(cellnum++);
+	FuelConsumption.setCellValue((double) 6.25);
+
+	Cell FuelType = row.createCell(cellnum++);
+	FuelType.setCellValue((double)  6.25);
+
+	Cell CO2Emission = row.createCell(cellnum++);
+	CO2Emission.setCellValue((double)  6.25);
+
+	Cell Lat = row.createCell(cellnum++);
+	Lat.setCellValue((double)  6.25);
+
+	Cell Lon = row.createCell(cellnum++);
+	Lon.setCellValue((double)  6.25);
+	FileOutputStream out = new FileOutputStream(new File(excelFilePath));
+	workbook.write(out);
+	out.close();
+	workbook.close();
+	System.out.println("Arquivo Excel criado com sucesso!"); 
+	
+
     }
 }
 

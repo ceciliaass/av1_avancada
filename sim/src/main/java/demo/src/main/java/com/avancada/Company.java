@@ -11,6 +11,10 @@ package demo.src.main.java.com.avancada;
 // import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,10 +44,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 
+//import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+
 public class Company extends Thread {
     private static ServerSocket server;
-    private static ArrayList<BufferedWriter>clientes;
-    Account conta;
+    //private static ArrayList<BufferedWriter>clientes;
+    int conta;
     private Socket socket;
     private OutputStream ou ;
     private Writer ouw;
@@ -72,7 +81,7 @@ public class Company extends Thread {
         this.executar = new ArrayList<Route>();
         this.executando = new ArrayList<Route>();
         // this.executadas = new ArrayList<Routes>();
-        this.conta = new Account(2000000.00, "abc", "123");
+        this.conta = 100;
         this.con = con;
         try {
             in  = con.getInputStream();
@@ -81,7 +90,7 @@ public class Company extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //conectar();
+
         Definir_percurso();
     }
 
@@ -105,6 +114,7 @@ public class Company extends Thread {
      * @throws IOException retorna IO Exception caso dê algum erro.
      */
     public void enviarMensagem(String msg) throws Exception{
+        conectar();
 		Cryptography crpt = new Cryptography();
 		msg = crpt.encrypt(msg, crpt.genKey(msg.length()));
         bfw.write(msg+"\r\n");    
@@ -125,7 +135,7 @@ public class Company extends Thread {
         while(!"Sair".equalsIgnoreCase(msg)){
 
                 msg = bfr.readLine();
-                System.out.println(msg);
+                //System.out.println(msg);
             }
     }
 
@@ -145,13 +155,12 @@ public class Company extends Thread {
     @Override
     public void run() {
         try{
-            System.out.println("RuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuUN");
             //enviarMensagem("Company_Conectada");
             String msg;
             OutputStream ou =  this.con.getOutputStream();
             Writer ouw = new OutputStreamWriter(ou);
             BufferedWriter bfw = new BufferedWriter(ouw);
-            clientes.add(bfw);
+            //clientes.add(bfw);
             //msg = bfr.readLine();
             //System.out.println(msg);
             Cryptography crpt = new Cryptography();
@@ -167,9 +176,9 @@ public class Company extends Thread {
 
             if(bfr.ready()){
                 msg = bfr.readLine();
-                System.out.println(msg);
+                //System.out.println(msg);
                 msg = crpt.decrypt(msg, crpt.genKey(msg.length()));
-                System.out.println(msg);
+                //System.out.println(msg);
                 JSONObject mensagem = new JSONObject(msg);
                 if(mensagem.get("mensagem").equals("getrotas")){
                     sendRoutes(bfw);
@@ -179,21 +188,74 @@ public class Company extends Thread {
                     executando.add((Route) mensagem.get("rota"));
                 }
                 if(mensagem.get("mensagem").equals("pagar")){
-                    pagarDriver((Account) mensagem.get("conta"), 3.25, this.conta);
-                    System.out.println(msg);
+                    System.out.println("" + mensagem.get("conta"));
+                    //(MyClass) Base64.getDecoder().decode(encodedString);
+
+                    //Object obj = Class.forName((String) mensagem.get("conta")).newInstance();
+                    //mensagem.get("conta");
+                    pagarDriver((int) mensagem.get("conta"), this.conta);
+                    //System.out.println(msg);
                 }
                 else{
-                    System.out.println(msg);
+                    //Gerar_relatorio(mensagem);
+                    //System.out.println(msg);
                     }
                 //}
             }
-
         }catch (Exception e) {
             e.printStackTrace();
 
         }
     }
     
+    /**
+     * @param mensagem
+     * @throws IOException
+     */
+    private void Gerar_relatorio(JSONObject mensagem) throws IOException{
+
+        String excelFilePath = "data/relatorio.xlsx";
+        FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+        XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+        int rowCount = workbook.getSheetAt(0).getPhysicalNumberOfRows();
+        Row row = workbook.getSheetAt(0).createRow(rowCount);
+        int cellnum = 0;
+        Cell timestamp = row.createCell(cellnum++);
+        timestamp.setCellValue((long) mensagem.get("Timestamp"));
+
+        Cell IdCar = row.createCell(cellnum++);
+        IdCar.setCellValue((String) mensagem.get("IDcar"));
+
+        Cell IdRoute = row.createCell(cellnum++);
+        IdRoute.setCellValue((String) mensagem.get("IDroute"));
+
+        Cell Speed = row.createCell(cellnum++);
+        Speed.setCellValue((double) mensagem.get("Speed"));
+
+        Cell Distance = row.createCell(cellnum++);
+        Distance.setCellValue((double) mensagem.get("distance"));
+
+        Cell FuelConsumption = row.createCell(cellnum++);
+        FuelConsumption.setCellValue((double) mensagem.get("FuelConsumption"));
+
+        Cell FuelType = row.createCell(cellnum++);
+        FuelType.setCellValue((double) mensagem.get("FuelType"));
+
+        Cell CO2Emission = row.createCell(cellnum++);
+        CO2Emission.setCellValue((double) mensagem.get("CO2Emission"));
+
+        Cell Lat = row.createCell(cellnum++);
+        Lat.setCellValue((double) mensagem.get("Lat"));
+
+        Cell Lon = row.createCell(cellnum++);
+        Lon.setCellValue((double) mensagem.get("Lon"));
+        FileOutputStream out = new FileOutputStream(new File(excelFilePath));
+        workbook.write(out);
+        out.close();
+        workbook.close();
+        System.out.println("Arquivo Excel criado com sucesso!"); 
+        
+    }
 
     /***
      * MÃ©todo usado para enviar mensagem para todos os clients
@@ -210,13 +272,21 @@ public class Company extends Thread {
         bwSaida.flush();
     }
 
-    void pagarDriver(Account contaRecebendo,double valor, Account contaPagando){
-        BotPayment botPayment = new BotPayment(contaRecebendo, valor);
+    
+    /**
+     * @param contaRecebendo
+     * @param valor
+     * @param contaPagando
+     */
+    void pagarDriver(int contaRecebendo, int contaPagando){
+        BotPayment botPayment = new BotPayment(contaRecebendo);
         Thread t1 = new Thread(botPayment);
+        System.out.println("TO NO PAGAR DRIVER");
         t1.start();
     }
+
     public void Definir_percurso(){
-        String uriItineraryXML = "sim/data/data_route.xml";
+        String uriItineraryXML = "data/data_route.xml";
         //SumoStringList edge = new SumoStringList();
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -242,7 +312,7 @@ public class Company extends Thread {
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-    System.out.println("definir percurso " +rotas.size());
+    //System.out.println("definir percurso " +rotas.size());
     }
     
     private String distribuindo_rotas(){
@@ -267,7 +337,7 @@ public class Company extends Thread {
                 try{
 
                 server = new ServerSocket(Integer.parseInt("12346"));
-                clientes = new ArrayList<BufferedWriter>();
+                //clientes = new ArrayList<BufferedWriter>();
                 while(true){
                     System.out.println("Aguardando conex�o...");
                     Socket con = server.accept();
@@ -287,35 +357,25 @@ public class Company extends Thread {
         
     }
     class BotPayment extends Thread{
-        private Account conta_recebendo;
-
-        private Double valor;
+        private int conta_recebendo;
         private boolean on_off;
-        public BotPayment(Account contaRecebendo,double valor){
+        public BotPayment(int contaRecebendo){
             this.conta_recebendo = contaRecebendo;
-            this.valor = valor;
             this.on_off = true;
         }
 
         @Override
         public void run() {
-            while(getOn_off()){
                 Json json = new Json();
 
-                try {
-                    if(conta.getSaldo(conta.getLogin(), conta.getSenha()) < valor){
-                            System.out.println("Saldo insuficiente.");
-                    
-                        }else{
-                            conta.setSaldo(conta.getSaldo(conta.getLogin(), conta.getSenha())-valor,conta.getLogin(), conta.getSenha());
-                            enviarMensagem(json.Json_pagamento(conta, conta_recebendo, valor));
-                        }
+                try {   
+                    conectar();   
+                    enviarMensagem(json.Json_pagamento(conta, conta_recebendo,(double) 3.25));
+                    System.out.println("TO no boooooooooooooooot");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                // conta.setSaldo(conta.getSaldo(conta.getLogin(), conta.getSenha())-this.valor,conta.getLogin(), conta.getSenha());
-                // conta_recebendo.setSaldo(conta_recebendo.getSaldo(conta_recebendo.getLogin(), conta_recebendo.getSenha())-this.valor,conta_recebendo.getLogin(), conta_recebendo.getSenha());
-            } 
+
         }
         
 

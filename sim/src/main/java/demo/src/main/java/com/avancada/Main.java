@@ -21,7 +21,7 @@ public class Main {
 
     public SumoTraciConnection ativarSumo(){
         String sumo_bin = "sumo-gui";		
-		String config_file = "sim/map/map.sumo.cfg";
+		String config_file = "map/map.sumo.cfg";
 		SumoTraciConnection sumo;
         sumo = new SumoTraciConnection(sumo_bin, config_file);
 		sumo.addOption("start", "1"); // auto-run on GUI show
@@ -46,16 +46,14 @@ public class Main {
         AlphaBank.main(args);
 
         Company.main(args);
-
+        //FuelStation posto = new FuelStation();
         Cryptography crpt = new Cryptography();
         for(int i=0; i<1;i++){
-            Account conta = new Account(50.0, "abc", "123");
-            Car carro = new Car(true, ("455k"+i) /*,("D"+i)*/, sumo,fuelType, fuelPrice, conta);
-            carro.conectar();
-            carros.add(carro);
+            //Account conta = new Account(50.0, "abc", "123");
+            Car carro = new Car(true, ("455k"+i) /*,("D"+i)*/, sumo,fuelType, fuelPrice, i);
             //carro.Solicita_rotas();
             System.out.println(sumo);
-            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), conta, i*9, (i*9)+9);
+            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*9, (i*9)+9);
             motorista.conectar();
             motorista.start();
             //Thread.sleep(5000);
@@ -72,8 +70,8 @@ public class Main {
         }
 
         // for (int i=0; i<carros.size();i++){
-        //     (carros.get(i)).join();
-        //     motoristas.get(i).join();
+        //     //ccarros.get(i).join();
+        //     //motoristas.get(i).join();
             
         // }
         // MobilityCompany.escutar();

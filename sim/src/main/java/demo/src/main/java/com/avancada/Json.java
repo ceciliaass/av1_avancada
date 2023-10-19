@@ -1,9 +1,11 @@
 package demo.src.main.java.com.avancada;
 
 import java.util.ArrayList;
+import java.util.Base64;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 
 public class Json{
 	private JSONObject my_obj;
@@ -44,14 +46,20 @@ public class Json{
 		return my_obj.toString();
 	}
 
-	public String Json_pagamentoDriver(String mensagem, Account conta){
+	public String Json_versaldo(int conta){
+		my_obj.put("mensagem", "ver saldo");
+		my_obj.put("conta", conta);
+		return my_obj.toString();
+	}
+
+	public String Json_pagamentoDriver(String mensagem, int conta){
 		my_obj.put("mensagem", mensagem);
 		my_obj.put("conta", conta);
 		return my_obj.toString();
 	}
 
     public String Json_RelatorioCar(long timestamp, String IdCar, String IdRoute, Double Speed, Double distance, Double FuelConsumption, int FuelType, Double CO2Emission, Double Lat, Double Lon ){
-
+		my_obj.put("mensagem", "relatorio");
 		//preenche o objeto com os campos: titulo, ano e genero
 		my_obj.put("Timestamp", timestamp);
 		my_obj.put("IDcar", IdCar);
@@ -82,7 +90,8 @@ public class Json{
 		// System.out.println("genero: " + genero);
     }
 
-	public String Json_pagamento(Account conta_pagando, Account conta_recebendo, Double valor) {
+	public String Json_pagamento(int conta_pagando, int conta_recebendo, Double valor) {
+		my_obj.put("mensagem", "transacao");
 		my_obj.put("conta_pagando", conta_pagando);
 		my_obj.put("conta_recebendo", conta_recebendo);
 		my_obj.put("valor", valor);

@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 public class AlphaBank extends Thread{
     private static ArrayList<BufferedWriter>clientes;
+    private ArrayList<Account> contas;
     private String nome;
     private Socket con;
     private InputStream in;
@@ -25,10 +26,12 @@ public class AlphaBank extends Thread{
 
     /**
      * MÃ©todo construtor
+     * @param contas
      * @param com do tipo Socket
      */
-    public AlphaBank(Socket con) throws IOException{
+    public AlphaBank(Socket con, ArrayList<Account> contas) throws IOException{
         this.con = con;
+        this.contas = contas;
         try {
             in  = con.getInputStream();
             inr = new InputStreamReader(in);
@@ -50,20 +53,26 @@ public class AlphaBank extends Thread{
             Writer ouw = new OutputStreamWriter(ou);
             BufferedWriter bfw = new BufferedWriter(ouw);
             clientes.add(bfw);
-            System.out.println(bfw);
+            //System.out.println(bfw);
             nome = msg = bfr.readLine();
             Cryptography crpt = new Cryptography();
-            while(!"Sair".equalsIgnoreCase(msg) && msg != null)
-            {
+            //while(!"Sair".equalsIgnoreCase(msg)) // && msg != null
+            //{
+            if(bfr.ready()){
                 msg = bfr.readLine();
-                System.out.println(msg);
+                //System.out.println(msg);
                 msg = crpt.decrypt(msg, crpt.genKey(msg.length()));
-                System.out.println(msg);
+                //System.out.println(msg);
                 JSONObject mensagem = new JSONObject(msg);
-                //saque((Account) mensagem.get("conta_pagando"), (double) mensagem.get("valor"));
-                //deposito((Account) mensagem.get("conta_recebendo"), (double) mensagem.get("valor"));
-                sendToAll(bfw, msg);
-                System.out.println(msg);
+                if(mensagem.get("mensagem").equals("ver saldo")){
+                    sendSaldo(bfw, getSaldo((int) mensagem.get("conta")));
+                }
+                if(mensagem.get("mensagem").equals("transacao")){
+                    saque( Double.parseDouble(mensagem.get("valor").toString()), (int) mensagem.get("conta_pagando"));
+                    deposito( Double.parseDouble(mensagem.get("valor").toString()), (int) mensagem.get("conta_recebendo"));
+                    sendToAll(bfw, msg);
+                    System.out.println("saldooooooooooo pagando" + getSaldo((int) mensagem.get("conta_pagando")));
+                }
             }
 
         }catch (Exception e) {
@@ -71,6 +80,14 @@ public class AlphaBank extends Thread{
 
         }
     }
+
+    public void sendSaldo(BufferedWriter bwSaida, double msg) throws  IOException
+    {
+        BufferedWriter bwS;
+        bwSaida.write(msg+"\r\n");
+        bwSaida.flush();
+        }
+    
 
     /***
      * MÃ©todo usado para enviar mensagem para todos os clients
@@ -80,33 +97,51 @@ public class AlphaBank extends Thread{
      */
     public void sendToAll(BufferedWriter bwSaida, String msg) throws  IOException
     {
-        BufferedWriter bwS;
-        System.out.println("send");
-        for(BufferedWriter bw : clientes){
-             System.out.println("sendq1");
-            System.out.println("send2");
-            bw.write(nome + " -> " + msg+"\r\n");
-            bw.flush();
-            }
+    
+            bwSaida.write(nome + " -> " + msg+"\r\n");
+            bwSaida.flush();
+//            }
         }
     
 
-    // private void saque(Account conta, Double valor){
-	
-	// 	if(conta.getSaldo(conta.getLogin(), conta.getSenha()) < valor){
-    //         System.out.println("Saldo insuficiente.");
+    private void saque(Double valor, int i){
+		if(contas.get(i).getSaldo(contas.get(i).getLogin(), contas.get(i).getSenha()) < valor){
+            System.out.println("Saldo insuficiente.");
 
-    //     }else{
-    //         conta.setSaldo(conta.getSaldo(conta.getLogin(), conta.getSenha())-valor,conta.getLogin(), conta.getSenha());
-    //     }
+        }else{
+            contas.get(i).setSaldo(contas.get(i).getSaldo(contas.get(i).getLogin(), contas.get(i).getSenha())-valor,contas.get(i).getLogin(), contas.get(i).getSenha());
+        }
+        contas.get(i).start();
+    }
 
-    // }
+    private void deposito(Double valor, int i){
+        contas.get(i).setSaldo(contas.get(i).getSaldo(contas.get(i).getLogin(), contas.get(i).getSenha())+valor,contas.get(i).getLogin(), contas.get(i).getSenha());
+        contas.get(i).start();
+    }
 
-    // private void deposito(Account conta, Double valor){
-    //     conta.setSaldo(conta.getSaldo(conta.getLogin(), conta.getSenha())+valor,conta.getLogin(), conta.getSenha());
-    // }
+    private double getSaldo(int i){
+        return contas.get(i).getSaldo(contas.get(i).getLogin(), contas.get(i).getSenha());
+    }
 
     public static void main(String []args) {
+        ArrayList<Account> contass = new ArrayList<Account>();
+        for(int i=0;i<100;i++){
+            contass.add(new Account(50.0, "abc", "123"));
+            //contass.get(i).start();
+        }
+        contass.add(new Account(500000.0, "abc", "123"));
+       // contass.get(100).start();
+
+        contass.add(new Account(50.0, "abc", "123"));
+       // contass.get(101).start();
+
+        // for(int i=0;i<102;i++){
+        //     try {
+        //         contass.get(i).join();
+        //     } catch (InterruptedException e) {
+        //         e.printStackTrace();
+        //     }
+        // }
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -119,7 +154,7 @@ public class AlphaBank extends Thread{
                     System.out.println("AlphaBank aguardando conex�o...");
                     Socket con = server.accept();
                     System.out.println("Cliente conectado...");
-                    Thread t = new AlphaBank(con);
+                    Thread t = new AlphaBank(con, contass);
                     t.start();
                 }
 

@@ -1,38 +1,9 @@
 package demo.src.main.java.com.avancada;
 
-import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.spec.IvParameterSpec;
-
-import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.util.Random;
-
-import javax.crypto.Cipher;
-
 public class Cryptography {
-
-    // private static String IV;
-    // private static String chaveencriptacao;
 
     public Cryptography(){
     }
-
-    // public String encrypt(String textopuro) throws Exception {
-    //     Cipher encripta = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
-    //     SecretKeySpec key = new SecretKeySpec(chaveencriptacao.getBytes("UTF-8"), "AES");
-    //     encripta.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
-    //     return encripta.doFinal(textopuro.getBytes("UTF-8")).toString();
-    // }
-     
-    // public String decrypt(String textoencriptado) throws Exception{
-    //     Cipher decripta = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
-    //     SecretKeySpec key = new SecretKeySpec(chaveencriptacao.getBytes("UTF-8"), "AES");
-    //     decripta.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
-    //     return new String(decripta.doFinal(textoencriptado.getBytes()),"UTF-8");
-        
-    //   }
-
-
 
     public String encrypt(String mensagem, String chave) {
     if (mensagem.length() != chave.length())

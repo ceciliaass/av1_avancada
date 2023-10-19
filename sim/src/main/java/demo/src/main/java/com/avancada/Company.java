@@ -197,7 +197,7 @@ public class Company extends Thread {
                     //System.out.println(msg);
                 }
                 else{
-                    //Gerar_relatorio(mensagem);
+                    Gerar_relatorio(mensagem);
                     //System.out.println(msg);
                     }
                 //}

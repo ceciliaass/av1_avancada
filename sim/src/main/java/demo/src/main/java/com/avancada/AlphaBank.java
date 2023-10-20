@@ -87,11 +87,16 @@ public class AlphaBank extends Thread{
 
     public void sendSaldo(BufferedWriter bwSaida, double msg) throws  IOException
     {   
+        Cryptography crpt = new Cryptography();
         Json json = new Json();
-        BufferedWriter bwS;
-        bwSaida.write(json.Json_saldo(msg, 101)+"\r\n");
-        bwSaida.flush();
+        String msg1 = json.Json_saldo(msg, 101)+"\r\n";
+        // bwSaida.write(json.Json_saldo(msg, 101)+"\r\n");
+        // bwSaida.flush();
         System.out.println("envieeeeei o saaaldo");
+
+        // System.out.println("sendRoute");
+         bwSaida.write(crpt.encrypt(msg1,crpt.genKey(msg1.length()))+"\r\n");
+         bwSaida.flush();
         }
     
 
@@ -103,9 +108,9 @@ public class AlphaBank extends Thread{
      */
     public void sendToAll(BufferedWriter bwSaida, String msg) throws  IOException
     {
-
-        bwSaida.write(msg);
-        bwSaida.flush();
+        Cryptography crpt = new Cryptography();
+        bwSaida.write(crpt.encrypt(msg,crpt.genKey(msg.length()))+"\r\n");
+         bwSaida.flush();
 //            }
         }
     

@@ -192,7 +192,7 @@ public class teste_execucao {
 	double fuelPrice = 5.87;
         // fuelType: 1-diesel, 2-gasoline, 3-ethanol, 4-hybrid
         ArrayList<Car> carros = new ArrayList<Car>();
-        ArrayList<Driver> motoristas = new ArrayList<Driver>();
+        ArrayList<Drivern> motoristas = new ArrayList<Drivern>();
 		int fuelType = 2;
         Main principal = new Main();
         SumoTraciConnection sumo;
@@ -205,14 +205,14 @@ public class teste_execucao {
 	AlphaBank.main(args);
 
         Company.main(args);
-        //FuelStation posto = new FuelStation();
+        FuelStationn posto = new FuelStationn();
         Cryptography crpt = new Cryptography();
         for(int i=0; i<1;i++){
             //Account conta = new Account(50.0, "abc", "123");
             Car carro = new Car(true, ("455k"+i) /*,("D"+i)*/, sumo,fuelType, fuelPrice, i);
             //carro.Solicita_rotas();
             System.out.println(sumo);
-            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*9, (i*9)+9);
+            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*9, (i*9)+9,posto);
             motorista.conectar();
             motorista.start();
             //Thread.sleep(5000);

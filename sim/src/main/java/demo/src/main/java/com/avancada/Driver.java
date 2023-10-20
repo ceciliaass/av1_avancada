@@ -102,10 +102,11 @@ public class Driver extends Thread{
         InputStreamReader inr = new InputStreamReader(in);
         BufferedReader bfr = new BufferedReader(inr);
         String msg = "";
-
+        Cryptography crpt = new Cryptography();
         while(!"Sair".equalsIgnoreCase(msg)){
 
                 msg = bfr.readLine();
+                msg = crpt.decrypt(msg, crpt.genKey(msg.length()));
                 JSONObject mensagem = new JSONObject(msg);
                 if((int) mensagem.get("conta_recebendo")==this.conta){
                     System.out.println("Motorista recebendo");
@@ -143,15 +144,34 @@ public class Driver extends Thread{
         thread.start();
         while (!this.sumo.isClosed()) {
             //System.out.println(this.carro.getFuelTank());
-            if(this.carro.getFuelTank()<=3.0 & this.abastecendo==false){
+            if(this.carro.getFuelTank()<=9.9 & this.abastecendo==false){
                 try {
                     Thread posto = new FuelStation(this);
-                    posto.start();
-                    System.out.println(this.carro.getFuelTank());
+                    if(FuelStation.getbomba1()){
+                        FuelStation.setbomba1();
+                        posto.start();
+                        System.out.println(this.carro.getFuelTank());
+                        Thread.sleep(200);
+                    }else if(FuelStation.getbomba2()){
+                        posto.start();
+                        System.out.println(this.carro.getFuelTank());
+                        FuelStation.setbomba2();
+                        Thread.sleep(200);
+                    }else{
+                        FuelStation.setespera(true);
+                        while(!FuelStation.getbomba2() || !FuelStation.getbomba1()){
+                            posto.wait();
+                        }
+                        FuelStation.setespera(false);
+                        System.out.println("");
+                    }
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                   e.printStackTrace();
+                 }
             }
             if (this.sumo.isClosed()) {
                 carro.setOn_off(false);

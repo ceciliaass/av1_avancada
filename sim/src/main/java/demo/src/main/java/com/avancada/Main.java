@@ -44,7 +44,6 @@ public class Main {
             e.printStackTrace();
         }
         AlphaBank.main(args);
-
         Company.main(args);
         //FuelStation posto = new FuelStation();
         Cryptography crpt = new Cryptography();

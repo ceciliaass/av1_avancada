@@ -96,7 +96,7 @@ public class Car extends Vehicle implements Runnable {
 
 				// System.out.println("AutoID: " + this.getIdAuto());
 				// System.out.println("RoadID: " + (String) this.sumo.do_job_get(getRoadID(this.idAuto)));
-				// System.out.println("RouteID: " + (String) this.sumo.do_job_get(getRouteID(this.idAuto)));
+				System.out.println("RouteID: " + (String) this.sumo.do_job_get(getRouteID(this.idAuto)));
 				// System.out.println("RouteIndex: " + this.sumo.do_job_get(getRouteIndex(this.idAuto)));
 				// System.out.println("Position "+ sumo.do_job_get(getPosition(this.idAuto)).toString());
 				System.out.println("SSSDDDDDDDDDDDDDDDD "+ (double) sumo.do_job_get(getDistance(this.idAuto)));
@@ -104,8 +104,8 @@ public class Car extends Vehicle implements Runnable {
 				setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))/770000);
 				System.out.println("TAAAAAAAAAAAAAAAAAAAAAAAAAAAAANK                                           "+fuelTank );
 				Json Json = new Json();
-				//SumoPosition3D posicion = (SumoPosition3D) sumo.do_job_get(getPosition(this.idAuto));
-				//double[] coord= converterGeo((double) posicion.x, (double) posicion.y, (double) posicion.z);
+				SumoPosition2D posicion = (SumoPosition2D) sumo.do_job_get(getPosition(this.idAuto));
+				double[] coord= converterGeo((double) posicion.x, (double) posicion.y);
 				String json_relatorio= Json.Json_RelatorioCar(System.currentTimeMillis() * 1000000, this.idAuto, 
 												(String) this.sumo.do_job_get(getRouteID(this.idAuto)), 
 												(double) sumo.do_job_get(getSpeed(this.idAuto)), 
@@ -113,8 +113,8 @@ public class Car extends Vehicle implements Runnable {
 												(double) sumo.do_job_get(getFuelConsumption(this.idAuto)), 
 												this.fuelType, 
 												(double) sumo.do_job_get(getCO2Emission(this.idAuto)), 
-												/*coord[0]*/11.0, 
-												/*coord[1]*/12.0);
+												(double) posicion.x, 
+												(double) posicion.y);
 				//System.out.println(json_relatorio);
 				this.distancia();
 				System.out.println("DISTÂNCIAAAAAAAAAAAAAAAAAAA "+distancia);
@@ -132,6 +132,13 @@ public class Car extends Vehicle implements Runnable {
 		}
 	}
 
+	public void setVelocidade(double vel) throws Exception{
+		sumo.do_job_set(Vehicle.setSpeed(this.idAuto, vel));
+	}
+
+	public int getRoute() throws Exception{
+		return Integer.parseInt((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
+	}
 	private void distancia() throws Exception{
 		if(!this.getSumo().isClosed()){
 			if(distancia+1000 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
@@ -145,13 +152,13 @@ public class Car extends Vehicle implements Runnable {
 	}
 
 
-	private double[] converterGeo(Double x, Double y, Double z) {
+	private double[] converterGeo(Double x, Double y) {
 		
-		//double EARTH_RADIUS = 6371.0;
+		double EARTH_RADIUS = 6371.0;
+	
 		x = x*1000000000;
 		y = y*1000000000;
-		z = z*1000000000;
-		// double z = Math.sqrt(Math.pow(EARTH_RADIUS, 2) - Math.pow(x, 2) - Math.pow(y, 2));
+		double z = Math.sqrt(Math.pow(EARTH_RADIUS, 2) - Math.pow(x, 2) - Math.pow(y, 2));
 		double longitude = Math.atan(y / x);
 		double latitude = Math.atan(z / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
 

@@ -25,7 +25,9 @@ public class FuelStation extends  Thread{
     private String txtPorta;
     private String txtNome;
     private Driver cliente;
-
+    private static Boolean bomba1=true;
+    private static Boolean bomba2=true;
+    private static Boolean espera=false;
     public FuelStation(Driver cliente) throws IOException{
 
         this.quant_abastecimento = 0;
@@ -77,10 +79,12 @@ public class FuelStation extends  Thread{
         BufferedReader bfr = new BufferedReader(inr);
         String msg = "";
         System.out.println("escutaando3");
+        Cryptography crpt = new Cryptography();
         //while(!"Sair".equalsIgnoreCase(msg))
 
             if(bfr.ready()){
                 msg = bfr.readLine();
+                msg = crpt.decrypt(msg, crpt.genKey(msg.length()));
                 System.out.println("FUEEEEEL RECEBEU O SALDO");
                 JSONObject mensagem = new JSONObject(msg);
                 if((int) mensagem.get("conta_recebendo")==this.conta){
@@ -118,7 +122,6 @@ public class FuelStation extends  Thread{
                     cliente.setAbastecendo(true);
                     Json json = new Json();
 		            enviarMensagem(json.Json_versaldo(cliente.getConta()));
-                    //Thread.sleep(500);
                     //System.out.println("escutaando1");
                     escutar();
                     //System.out.println("escutaando2");
@@ -133,7 +136,9 @@ public class FuelStation extends  Thread{
                //sacar da conta do driver
                cliente.setfuelDivida(this.conta, this.quant_abastecimento);
                System.out.println("enviei a divida");
-            }
+               if(!bomba1) {setbomba1(); if(espera) {notifyAll();}}
+               if(!bomba2) {setbomba2(); if(espera) {notifyAll();}}
+                }
         //}
 
    
@@ -143,5 +148,24 @@ public class FuelStation extends  Thread{
 
     public boolean getOn_off(){
         return this.on_off;
+    }
+
+    public static Boolean getbomba1(){
+        return bomba1;
+    }
+
+    public static Boolean getbomba2(){
+        return bomba1;
+    }
+
+    public synchronized static void setbomba1(){
+        bomba1=!bomba1;
+    }
+    public synchronized static void setbomba2(){
+        bomba2=!bomba2;
+    }
+
+    public synchronized static void setespera(Boolean espera){
+        espera = espera;
     }
 }

@@ -17,12 +17,11 @@ import java.util.ArrayList;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-//import org.python.antlr.PythonParser.return_stmt_return;
 
 import de.tudresden.sumo.objects.SumoColor;
 import de.tudresden.sumo.objects.SumoPosition2D;
-import de.tudresden.sumo.objects.SumoPosition3D;
-//import io.sim.DrivingData;
+import de.tudresden.sumo.objects.SumoStringList;
+
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class Car extends Vehicle implements Runnable {
@@ -33,12 +32,11 @@ public class Car extends Vehicle implements Runnable {
     private BufferedWriter bfw;
     private String txtIP;
     private String txtPorta;
-    //private String txtNome;
 
 	private Double fuelTank = 10.0;
 	private String idAuto;
 	private SumoColor colorAuto;
-	//private String driverID;
+
 	private SumoTraciConnection sumo;
 
 	private boolean on_off;
@@ -49,25 +47,21 @@ public class Car extends Vehicle implements Runnable {
 	private int personNumber;		// the total number of persons which are riding in this vehicle
 	private double distancia;
 
-	//private ArrayList<DrivingData> drivingRepport;
 	private String rota_atual;
 	private int contaDriver;
-	Car(boolean _on_off, String _idAuto/*, String _driverID*/, SumoTraciConnection _sumo, int fuelType, double _fuelPrice, int contaDriver) throws IOException {
+	public Car(boolean _on_off, String _idAuto, SumoTraciConnection _sumo, int fuelType, double _fuelPrice, int contaDriver) throws IOException {
 		super(); 
         this.txtIP = ("127.0.0.1");
         this.txtPorta = "12346";
-        //this.txtNome = _idAuto;
 
 		this.on_off = _on_off;
 		this.idAuto = _idAuto;
-		//this.driverID = _driverID;
+		
 		this.sumo = _sumo;
 		this.contaDriver = contaDriver;
 		this.fuelPrice = _fuelPrice;
 		this.fuelType = fuelType;
-		//this.drivingRepport = new ArrayList<DrivingData>();
 		this.distancia =0;
-		conectar();
 	}
 
 	@Override
@@ -75,13 +69,8 @@ public class Car extends Vehicle implements Runnable {
 
 		while (!this.getSumo().isClosed()) {
 			try {
-				try {
-					this.sumo.do_timestep();
-					Thread.sleep(200);
-				} catch (Exception e) {
-				}
-				//Auto.sleep(this.acquisitionRate);
 				this.relatorio();
+				Thread.sleep(200);				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -91,18 +80,11 @@ public class Car extends Vehicle implements Runnable {
 	private void relatorio() {
 
 		try {
+			if (!this.getSumo().isClosed() && ((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.getIdAuto())) {
 
-			if (!this.getSumo().isClosed()) {
-
-				// System.out.println("AutoID: " + this.getIdAuto());
-				// System.out.println("RoadID: " + (String) this.sumo.do_job_get(getRoadID(this.idAuto)));
-				System.out.println("RouteID: " + (String) this.sumo.do_job_get(getRouteID(this.idAuto)));
-				// System.out.println("RouteIndex: " + this.sumo.do_job_get(getRouteIndex(this.idAuto)));
-				// System.out.println("Position "+ sumo.do_job_get(getPosition(this.idAuto)).toString());
-				System.out.println("SSSDDDDDDDDDDDDDDDD "+ (double) sumo.do_job_get(getDistance(this.idAuto)));
-				
 				setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))/770000);
-				System.out.println("TAAAAAAAAAAAAAAAAAAAAAAAAAAAAANK                                           "+fuelTank );
+				System.out.println("Tank                                        "+fuelTank );
+				System.out.println("Distância percorrida: "+(double) sumo.do_job_get(getDistance(this.idAuto)));
 				Json Json = new Json();
 				SumoPosition2D posicion = (SumoPosition2D) sumo.do_job_get(getPosition(this.idAuto));
 				double[] coord= converterGeo((double) posicion.x, (double) posicion.y);
@@ -115,17 +97,11 @@ public class Car extends Vehicle implements Runnable {
 												(double) sumo.do_job_get(getCO2Emission(this.idAuto)), 
 												(double) posicion.x, 
 												(double) posicion.y);
-				//System.out.println(json_relatorio);
+				
 				this.distancia();
-				System.out.println("DISTÂNCIAAAAAAAAAAAAAAAAAAA "+distancia);
-				conectar();
+				//this.RotaExecutada((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
 				enviarMensagem(json_relatorio);
-				// // enviarMensagem(json_relatorio);
-				// rota_atual = (String) this.sumo.do_job_get(getRoute(this.idAuto));
-				// sumo.do_job_set(Vehicle.setSpeedMode(this.idAuto, 0));
-				// sumo.do_job_set(Vehicle.setSpeed(this.idAuto, 20));
-			} else {
-				System.out.println("SUMO is closed...");
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -139,15 +115,20 @@ public class Car extends Vehicle implements Runnable {
 	public int getRoute() throws Exception{
 		return Integer.parseInt((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
 	}
+
+
+	private void RotaExecutada(String rota) throws Exception{
+		Json json = new Json();
+		enviarMensagem(json.Json_RotaExecutando(rota));
+	}
 	private void distancia() throws Exception{
 		if(!this.getSumo().isClosed()){
-			if(distancia+1000 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
+			if(distancia+170 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
 				Json json = new Json();
-				conectar();
+				
 				enviarMensagem(json.Json_pagamentoDriver("pagar", this.contaDriver));
-				distancia = distancia + 1000;
+				distancia = distancia + 170;
 			}
-				System.out.println("DISTÂNCIAAAAAAAAAAAAAAAAAAA "+distancia);
 		}
 	}
 
@@ -162,7 +143,7 @@ public class Car extends Vehicle implements Runnable {
 		double longitude = Math.atan(y / x);
 		double latitude = Math.atan(z / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
 
-		System.out.println("Latitude: " + latitude + ", Longitude: " + longitude);
+
 		return new double[] {latitude, longitude}; 
 	}
 
@@ -229,13 +210,12 @@ public class Car extends Vehicle implements Runnable {
      * @throws IOException
      */
     public void conectar() throws IOException{
-		//System.out.println("conectar");
+		
         socket = new Socket(this.txtIP,Integer.parseInt(this.txtPorta));
         ou = socket.getOutputStream();
         ouw = new OutputStreamWriter(ou);
         bfw = new BufferedWriter(ouw);
 		
-        //bfw.write(this.txtNome+"\r\n");
         bfw.flush();
     }
 
@@ -246,14 +226,12 @@ public class Car extends Vehicle implements Runnable {
      * @throws IOException retorna IO Exception caso dê algum erro.
      */
 	public ArrayList<Route> Solicita_rotas(int inf, int sup) throws Exception{
-		//System.out.println("entrei solicitar");
+		
 		Json json = new Json();
 		enviarMensagem(json.Json_mensagens("getrotas"));
-		//System.out.println("mandei msg");
-		//Thread.sleep(200);
-		JSONObject rotas = new JSONObject(escutar()); //////////////////////////////////////////////DECRIPTOGRAFARR
-		//System.out.println(rotas);
 
+		JSONObject rotas = new JSONObject(escutar()); 
+		
 		JSONArray arrayIds = (JSONArray) rotas.get("Idrotas");
 		JSONArray arrayEdges = (JSONArray) rotas.get("edges");
 
@@ -262,16 +240,17 @@ public class Car extends Vehicle implements Runnable {
 		for(int i=inf;i< sup ; i++){
 			conjuntorotas.add(new Route((String) arrayIds.get(i),(String) arrayEdges.get(i)));
 		}
-		//System.out.println("solicita_rotas");
+		
 		return conjuntorotas;
 	}
 
     public void enviarMensagem(String msg) throws Exception{
+		conectar();
 		Cryptography crpt = new Cryptography();
 		msg = crpt.encrypt(msg, crpt.genKey(msg.length()));
         bfw.write(msg+"\r\n");    
         bfw.flush();
-		//System.out.println("Enviiiiiiiiiiiiiiiiiiiiiiiiiiiiar");
+		
     }
 
     /**
@@ -280,8 +259,7 @@ public class Car extends Vehicle implements Runnable {
      */
     public String escutar() throws IOException{
 		Cryptography crpt = new Cryptography();
-		//System.out.println("to no escutar");
-
+	
         InputStream in = socket.getInputStream();
         InputStreamReader inr = new InputStreamReader(in);
         BufferedReader bfr = new BufferedReader(inr);
@@ -289,8 +267,6 @@ public class Car extends Vehicle implements Runnable {
 		String txt="";
 		
 		txt= bfr.readLine();
-		//System.out.println(txt);
-		//System.out.println("recebiiiiiii");
 		txt = crpt.decrypt(txt, crpt.genKey(txt.length()));
         
 		return txt;

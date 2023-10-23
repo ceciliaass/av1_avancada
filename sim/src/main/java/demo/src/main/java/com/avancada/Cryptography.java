@@ -67,7 +67,7 @@ public class Cryptography {
   }
 
   private void error(String msg) {
-    System.out.println(msg);
+    // System.out.println(msg);
     System.exit(-1);
   }
     

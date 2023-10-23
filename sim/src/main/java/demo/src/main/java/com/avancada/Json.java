@@ -1,8 +1,6 @@
 package demo.src.main.java.com.avancada;
 
 import java.util.ArrayList;
-import java.util.Base64;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,7 +33,7 @@ public class Json{
 		return my_obj.toString();
 	}
 
-	public String Json_RotaExecutando(Route rota){
+	public String Json_RotaExecutando(String rota){
 		my_obj.put("mensagem", "rota");
 		my_obj.put("rota", rota);
 		return my_obj.toString();
@@ -78,21 +76,6 @@ public class Json{
 		my_obj.put("Lon", Lon);
 		//serializa para uma string e imprime
 		return my_obj.toString();
-		// System.out.println("objeto original -> " + json_string);
-		// System.out.println();
-
-		// //altera o titulo e imprime a nova configuração do objeto
-		// my_obj.put("titulo", "JSON x XML: o Confronto das Linguagens");
-		// json_string = my_obj.toString();
-		
-		// //recupera campo por campo com o método get() e imprime cada um
-		// String titulo = my_obj.getString("titulo");
-		// Integer ano = my_obj.getInt("ano");
-		// String genero = my_obj.getString("genero");
-
-		// System.out.println("titulo: " + titulo);
-		// System.out.println("ano: " + ano);
-		// System.out.println("genero: " + genero);
     }
 
 	public String Json_pagamento(int conta_pagando, int conta_recebendo, Double valor) {

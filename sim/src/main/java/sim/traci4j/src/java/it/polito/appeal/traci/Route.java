@@ -30,9 +30,6 @@ package sim.traci4j.src.java.it.polito.appeal.traci;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-
-import org.w3c.dom.Element;
-
 /**
 
 	Representation of a route in the SUMO environment.

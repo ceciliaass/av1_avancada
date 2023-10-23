@@ -1,19 +1,9 @@
-//Criar deposito na conta do driver
-//Criar o Json para o AlphaBank
-
 package demo.src.main.java.com.avancada;
-// import de.tudresden.sumo.objects.SumoColor;
 
-// import java.awt.Color;
-// import java.awt.event.ActionEvent;
-// import java.awt.event.ActionListener;
-// import java.awt.event.KeyEvent;
-// import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +13,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
-//import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,10 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-//import de.tudresden.sumo.objects.SumoStringList;
-//import io.sim.Auto;
 import it.polito.appeal.traci.SumoTraciConnection;
-//import sim.traci4j.src.java.it.polito.appeal.traci.Route;
 
 import java.util.ArrayList;
 
@@ -43,16 +29,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-
-//import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 public class Company extends Thread {
     private static ServerSocket server;
-    //private static ArrayList<BufferedWriter>clientes;
     int conta;
     private Socket socket;
     private OutputStream ou ;
@@ -67,10 +49,9 @@ public class Company extends Thread {
     private InputStreamReader inr;
     private BufferedReader bfr;
 
-    private ArrayList<Route>rotas;
     private ArrayList<Route>executar; 
     private ArrayList<Route>executando; 
-    // private  ArrayList<Routes>executadas; 
+    private ArrayList<Route>executadas; 
     static SumoTraciConnection sumo;
 
     public Company(Socket con) throws IOException{
@@ -78,10 +59,10 @@ public class Company extends Thread {
         this.txtIP = "127.0.0.2";
         this.txtPorta = "12347";
         this.txtNome = "Company";
-        this.rotas = new ArrayList<Route>();
+
         this.executar = new ArrayList<Route>();
         this.executando = new ArrayList<Route>();
-        // this.executadas = new ArrayList<Routes>();
+        this.executadas = new ArrayList<Route>();
         this.conta = 100;
         this.con = con;
         try {
@@ -91,7 +72,7 @@ public class Company extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        conectar();
         Definir_percurso();
     }
 
@@ -136,7 +117,6 @@ public class Company extends Thread {
         while(!"Sair".equalsIgnoreCase(msg)){
 
                 msg = bfr.readLine();
-                //System.out.println(msg);
             }
     }
 
@@ -156,53 +136,38 @@ public class Company extends Thread {
     @Override
     public void run() {
         try{
-            //enviarMensagem("Company_Conectada");
             String msg;
             OutputStream ou =  this.con.getOutputStream();
             Writer ouw = new OutputStreamWriter(ou);
             BufferedWriter bfw = new BufferedWriter(ouw);
-            //clientes.add(bfw);
-            //msg = bfr.readLine();
-            //System.out.println(msg);
             Cryptography crpt = new Cryptography();
-            //sendRoutes(bfw);
-            // while(!"Sair".equalsIgnoreCase(msg) && msg != null)
-            // {
-            //     msg = bfr.readLine();
-            //     sendRoutes(bfw);
-            //     System.out.println(msg);
-            // }
-            //escutar(bfw);
-
-
+            while(true){
             if(bfr.ready()){
                 msg = bfr.readLine();
-                //System.out.println(msg);
                 msg = crpt.decrypt(msg, crpt.genKey(msg.length()));
-                //System.out.println(msg);
                 JSONObject mensagem = new JSONObject(msg);
                 if(mensagem.get("mensagem").equals("getrotas")){
                     sendRoutes(bfw);
                 }
                 if(mensagem.get("mensagem").equals("rota")){
-                    executar.remove((Route) mensagem.get("rota"));//TIRAR ROTAAAA
-                    executando.add((Route) mensagem.get("rota"));
+                    if(executar.size()==900){
+                        addExecutando(executar.get(Integer.parseInt(mensagem.get("rota").toString())));
+                        delExecutar(Integer.parseInt(mensagem.get("rota").toString()));
+                    }else{
+                    addExecutadas(executando.get(executando.size()-1));
+                    delExecutando(executando.size()-1);
+                    delExecutar(Integer.parseInt(mensagem.get("rota").toString()));
+                    addExecutando((Route) mensagem.get("rota"));
+                    }
                 }
                 if(mensagem.get("mensagem").equals("pagar")){
-                    //System.out.println("" + mensagem.get("conta"));
-                    //(MyClass) Base64.getDecoder().decode(encodedString);
-
-                    //Object obj = Class.forName((String) mensagem.get("conta")).newInstance();
-                    //mensagem.get("conta");
                     pagarDriver((int) mensagem.get("conta"), this.conta);
-                    //System.out.println(msg);
                 }
-                else{
-                    //Gerar_relatorio(mensagem);
-                    //System.out.println(msg);
+                else if(mensagem.get("mensagem").equals("relatorio")){
+                    Gerar_relatorio(mensagem);
                     }
-                //}
             }
+        }
         }catch (Exception e) {
             e.printStackTrace();
 
@@ -214,7 +179,7 @@ public class Company extends Thread {
      * @throws IOException
      * @throws InterruptedException
      */
-    private void Gerar_relatorio(JSONObject mensagem) throws IOException, InterruptedException{
+    private synchronized  static void Gerar_relatorio(JSONObject mensagem) throws IOException, InterruptedException{
 
         String excelFilePath = "sim/data/relatorio.xlsx";
         FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
@@ -256,7 +221,7 @@ public class Company extends Thread {
         out.close();
         workbook.close();
         Thread.sleep(200);
-        System.out.println("Arquivo Excel atualizado com sucesso!"); 
+        // System.out.println("Arquivo Excel atualizado com sucesso!"); 
         
     }
 
@@ -269,7 +234,7 @@ public class Company extends Thread {
     public void sendRoutes(BufferedWriter bwSaida) throws  Exception
     {   
         Cryptography crpt = new Cryptography();
-       // System.out.println("sendRoute");
+       
         String msg = distribuindo_rotas();
         bwSaida.write(crpt.encrypt(msg,crpt.genKey(msg.length()))+"\r\n");
         bwSaida.flush();
@@ -284,13 +249,13 @@ public class Company extends Thread {
     void pagarDriver(int contaRecebendo, int contaPagando){
         BotPayment botPayment = new BotPayment(contaRecebendo);
         Thread t1 = new Thread(botPayment);
-        System.out.println("TO NO PAGAR DRIVER");
+
         t1.start();
     }
 
     public void Definir_percurso(){
         String uriItineraryXML = "sim/data/data_route.xml";
-        //SumoStringList edge = new SumoStringList();
+
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder = factory.newDocumentBuilder();
@@ -303,7 +268,6 @@ public class Company extends Thread {
 					String idRouteAux = String.valueOf(i);
 					Node node = elem.getElementsByTagName("route").item(0);
 					Element edges = (Element) node;
-                    rotas.add(new Route(idRouteAux, edges.getAttribute("edges")));
                     executar.add(new Route(idRouteAux, edges.getAttribute("edges")));
                 }
 			}
@@ -315,22 +279,39 @@ public class Company extends Thread {
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-    //System.out.println("definir percurso " +rotas.size());
     }
     
     private String distribuindo_rotas(){
         Json json = new Json();
-        //System.out.println("destribuindo");
-       // System.out.println("MEU VETOR DE ROTAS: "+rotas.size());
-
+       
         ArrayList<String> auxedges = new ArrayList<String>();
         ArrayList<String> auxid = new ArrayList<String>();
         for (int j=0;j<executar.size();j++){
             auxid.add(executar.get(j).getIdItinerary());
             auxedges.add(executar.get(j).getEdges());
         }
-       // System.out.println("MEU VETOR DE ROTAS: "+executar.size());
+       
         return json.Json_Rotas(auxid, auxedges);
+    }
+
+    public synchronized void addExecutando(Route executar){
+        this.executando.add(executar);
+    }
+
+    public synchronized void addExecutadas(Route executando){
+        this.executadas.add(executando);
+    }
+
+    public synchronized void delExecutar(int executar){
+        this.executar.remove(executar);
+    }
+
+    public synchronized void delExecutando(int executar){
+        this.executando.remove(executar);
+    }
+
+    public synchronized void delExecutadas(int executando){
+        this.executadas.remove(executando);
     }
     
     public static void main(String []args) {
@@ -340,11 +321,8 @@ public class Company extends Thread {
                 try{
 
                 server = new ServerSocket(Integer.parseInt("12346"));
-                //clientes = new ArrayList<BufferedWriter>();
                 while(true){
-                    System.out.println("Aguardando conex�o...");
                     Socket con = server.accept();
-                    System.out.println("Cliente conectado...");
                     Thread t = new Company(con);
                     t.start();
                 }
@@ -361,34 +339,22 @@ public class Company extends Thread {
     }
     class BotPayment extends Thread{
         private int conta_recebendo;
-        private boolean on_off;
         public BotPayment(int contaRecebendo){
             this.conta_recebendo = contaRecebendo;
-            this.on_off = true;
         }
 
         @Override
         public void run() {
                 Json json = new Json();
 
-                try {   
-                    conectar();   
+                try {     
                     enviarMensagem(json.Json_pagamento(conta, conta_recebendo,(double) 3.25));
-                    System.out.println("TO no boooooooooooooooot");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
         }
         
-
-        public void setOn_off(){
-            this.on_off = !this.on_off;
-        }
-
-        public boolean getOn_off(){
-            return this.on_off;
-        }
     } 
 
       

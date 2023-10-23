@@ -18,7 +18,6 @@ public class Account extends Thread {
     private String ultima_acao;
     private double ultima_transacao;
 
-    //public static int num_conta=1;
 
     public Account(double saldo_atual, String login, String senha, int conta){
         this.saldo_atual = saldo_atual;
@@ -28,8 +27,7 @@ public class Account extends Thread {
         this.conta_tranferencia = 0;
         this.ultima_acao="";
         this.ultima_transacao = 0;
-        // this.conta=num_conta;
-        // Account.num_conta = Account.num_conta + 1;
+
 
 
     }
@@ -93,15 +91,9 @@ public class Account extends Thread {
             workbook.write(out);
             out.close();
             workbook.close();
-            Thread.sleep(200);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        System.out.println("Arquivo Excel alterado com sucesso!"); 
+        } 
     }
 
     public void recebe_ContaTranferencia(String acao , double valor, int conta_transf ){

@@ -1,0 +1,140 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "AlphaBank",
+            "request": "launch",
+            "mainClass": "demo.src.main.java.com.avancada.AlphaBank",
+            "projectName": "io.sim-sim"
+        },
+        {
+            "type": "java",
+            "name": "Company",
+            "request": "launch",
+            "mainClass": "demo.src.main.java.com.avancada.Company",
+            "projectName": "io.sim-sim"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "demo.src.main.java.com.avancada.Main",
+            "projectName": "io.sim-sim"
+        },
+        {
+            "type": "java",
+            "name": "teste_execucao",
+            "request": "launch",
+            "mainClass": "demo.src.main.java.com.avancada.teste_execucao",
+            "projectName": "io.sim-sim"
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "io.sim.App",
+            "projectName": "io.sim-sim"
+        },
+        {
+            "type": "java",
+            "name": "GetVehicleInfo",
+            "request": "launch",
+            "mainClass": "sim.traci4j.examples.it.polito.appeal.traci.examples.GetVehicleInfo",
+            "projectName": "io.sim-sim"
+        },
+        {
+            "type": "java",
+            "name": "OpenStepsClose",
+            "request": "launch",
+            "mainClass": "sim.traci4j.examples.it.polito.appeal.traci.examples.OpenStepsClose",
+            "projectName": "io.sim-sim"
+        },
+        {
+            "type": "java",
+            "name": "TcpNoDelayControl",
+            "request": "launch",
+            "mainClass": "sim.traci4j.examples.it.polito.appeal.traci.examples.TcpNoDelayControl",
+            "projectName": "io.sim-sim"
+        },
+        {
+            "type": "java",
+            "name": "NanoHTTPD",
+            "request": "launch",
+            "mainClass": "sim.traci4j.test.java.it.polito.appeal.traci.test.NanoHTTPD",
+            "projectName": "io.sim-sim"
+        },
+        {
+            "type": "java",
+            "name": "AlphaBank(1)",
+            "request": "launch",
+            "mainClass": "demo.src.main.java.com.avancada.AlphaBank",
+            "projectName": "sim"
+        },
+        {
+            "type": "java",
+            "name": "Company(1)",
+            "request": "launch",
+            "mainClass": "demo.src.main.java.com.avancada.Company",
+            "projectName": "sim"
+        },
+        {
+            "type": "java",
+            "name": "Main(1)",
+            "request": "launch",
+            "mainClass": "demo.src.main.java.com.avancada.Main",
+            "projectName": "sim"
+        },
+        {
+            "type": "java",
+            "name": "teste_execucao(1)",
+            "request": "launch",
+            "mainClass": "demo.src.main.java.com.avancada.teste_execucao",
+            "projectName": "sim"
+        },
+        {
+            "type": "java",
+            "name": "App(1)",
+            "request": "launch",
+            "mainClass": "io.sim.App",
+            "projectName": "sim"
+        },
+        {
+            "type": "java",
+            "name": "GetVehicleInfo(1)",
+            "request": "launch",
+            "mainClass": "sim.traci4j.examples.it.polito.appeal.traci.examples.GetVehicleInfo",
+            "projectName": "sim"
+        },
+        {
+            "type": "java",
+            "name": "OpenStepsClose(1)",
+            "request": "launch",
+            "mainClass": "sim.traci4j.examples.it.polito.appeal.traci.examples.OpenStepsClose",
+            "projectName": "sim"
+        },
+        {
+            "type": "java",
+            "name": "TcpNoDelayControl(1)",
+            "request": "launch",
+            "mainClass": "sim.traci4j.examples.it.polito.appeal.traci.examples.TcpNoDelayControl",
+            "projectName": "sim"
+        },
+        {
+            "type": "java",
+            "name": "NanoHTTPD(1)",
+            "request": "launch",
+            "mainClass": "sim.traci4j.test.java.it.polito.appeal.traci.test.NanoHTTPD",
+            "projectName": "sim"
+        }
+    ]
+}

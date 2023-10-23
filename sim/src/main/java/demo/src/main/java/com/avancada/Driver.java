@@ -44,7 +44,6 @@ public class Driver extends Thread{
     private String txtPorta;
     //private String txtNome;
     Socket con;
-    private boolean on_off;
     private int inf;
     private int sup;
     private Boolean abastecendo;
@@ -60,10 +59,11 @@ public class Driver extends Thread{
         this.executando = new ArrayList<Route>();
         this.executadas = new ArrayList<Route>();
         this.sumo = sumo;
-        this.on_off=true;
         this.inf=inf;
         this.sup = sup;
         this.abastecendo= false;
+        conectar();
+        
     }
 
     /***
@@ -85,11 +85,11 @@ public class Driver extends Thread{
      * @throws IOException retorna IO Exception caso dê algum erro.
      */
     public void enviarMensagem(String msg) throws Exception{
+        conectar();
 		Cryptography crpt = new Cryptography();
 		msg= crpt.encrypt(msg, crpt.genKey(msg.length()));
         bfw.write(msg+"\r\n");    
         bfw.flush();
-        System.out.println("tooo no envirar do driveeeeer");
     }
 
     /**
@@ -142,21 +142,70 @@ public class Driver extends Thread{
         initializeRoutes();
         Thread thread = new Thread (carro);
         thread.start();
+
+        Thread p = new Thread (new Runnable() {
+            public void run() {
+                while (!sumo.isClosed()) {
+                    try {
+                    
+                SumoStringList carros = (SumoStringList) sumo.do_job_get(Vehicle.getIDList());
+                
+                boolean teste = true;
+                while (teste) {
+                    if (carros.size() > 0) {
+                        if ((carros).contains(carro.getIdAuto())) {
+                            teste = false;
+                        }
+                    }
+                    carros = (SumoStringList) sumo.do_job_get(Vehicle.getIDList());
+                }
+
+                boolean rota_executando = true;
+
+                while (rota_executando) {
+                    if (!(carros).contains(carro.getIdAuto())){
+                         rota_executando = false;
+                         thread.interrupt();
+                    } 
+                    //Thread.sleep(200);
+                    carros = (SumoStringList) sumo.do_job_get(Vehicle.getIDList());
+                }
+
+                
+                addNovaRota(executar.get(0).getIdItinerary());
+                thread.start();
+                        
+                addExecutando(executar.get(0));
+                addExecutadas(executando.get(0));
+                delExecutar(0);
+                delExecutando(0);
+                        // System.out.println("executaaar" +this.executando.size());
+                        // System.out.println("executaaar" +this.executar.size());
+                }
+            catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+                }
+            }
+        });
+        p.start();
+
+        System.out.println(this.carro.getFuelTank());
         while (!this.sumo.isClosed()) {
-            //System.out.println(this.carro.getFuelTank());
             if(this.carro.getFuelTank()<=9.9 & this.abastecendo==false){
+                System.out.println("necessita de abastecimento");
                 try {
                     Thread posto = new FuelStation(this);
+                    
                     if(FuelStation.getbomba1()){
                         FuelStation.setbomba1();
                         posto.start();
-                        System.out.println(this.carro.getFuelTank());
-                        Thread.sleep(200);
+                        Thread.sleep(20000);
                     }else if(FuelStation.getbomba2()){
                         posto.start();
-                        System.out.println(this.carro.getFuelTank());
                         FuelStation.setbomba2();
-                        Thread.sleep(200);
+                        Thread.sleep(20000);
                     }else{
                         FuelStation.setespera(true);
                         while(!FuelStation.getbomba2() || !FuelStation.getbomba1()){
@@ -165,32 +214,16 @@ public class Driver extends Thread{
                         FuelStation.setespera(false);
                         System.out.println("");
                     }
-
+                
+                    Thread.sleep(1000);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                    e.printStackTrace();
                  }
             }
-            if (this.sumo.isClosed()) {
-                carro.setOn_off(false);
-                this.on_off = false;
-                System.out.println("SUMO is closed...");
-            }
+            
         }
-        //while (this.on_off) {
-        //     this.carro.getRotaAtual();
-        //     if(this.carro.getFuelTank()<=3.0){
-        //         try {
-
-        //             Thread posto = new FuelStation(this);
-        //             posto.start();
-        //         } catch (IOException e) {
-        //             e.printStackTrace();
-        //         }
-        //     }
-        //}
     }
 
     public void setAbastecendo(Boolean situacao){
@@ -198,37 +231,16 @@ public class Driver extends Thread{
     }
     private void initializeRoutes() {
 
-		SumoStringList edge = new SumoStringList();
-		edge.clear();
+        SumoStringList edge = new SumoStringList();
         try{
-		for(int i =0; i<this.executar.size();i++){
+        for(int i =0; i<this.executar.size();i++){
                 for (String e : executar.get(i).getEdges().split(" ")) {
                     edge.add(e);
                 }
                 sumo.do_job_set(de.tudresden.sumo.cmd.Route.add(executar.get(i).getIdItinerary(), edge));
-                //sumo.do_job_set(Vehicle.add(this.auto.getIdAuto(), "DEFAULT_VEHTYPE", this.itinerary.getIdItinerary(), 0,
-                //		0.0, 0, (byte) 0));
+                
                 edge.clear();
-                // while(carro.getRotaAtual().equals(null)){
-                    
-                // sumo.do_job_set(Vehicle.addFull(this.carro.getIdAuto(), 				//vehID
-                //                                 executar.get(i).getIdItinerary(), 	//routeID 
-                //                                 "DEFAULT_VEHTYPE", 					//typeID 
-                //                                 "now", 								//depart  
-                //                                 "0", 								//departLane 
-                //                                 "0", 								//departPos 
-                //                                 "0",								//departSpeed
-                //                                 "current",							//arrivalLane 
-                //                                 "max",								//arrivalPos 
-                //                                 "current",							//arrivalSpeed 
-                //                                 "",									//fromTaz 
-                //                                 "",									//toTaz 
-                //                                 "", 								//line 
-                //                                 this.carro.getPersonCapacity(),		//personCapacity 
-                //                                 this.carro.getPersonNumber())		//personNumber
-                //         );
-                // }
-            }
+        }
                 sumo.do_job_set(Vehicle.addFull(this.carro.getIdAuto(), 				//vehID
                                                 executar.get(0).getIdItinerary(), 	//routeID 
                                                 "DEFAULT_VEHTYPE", 					//typeID 
@@ -245,15 +257,38 @@ public class Driver extends Thread{
                                                 this.carro.getPersonCapacity(),		//personCapacity 
                                                 this.carro.getPersonNumber())		//personNumber
                         );  
-                //sumo.do_(sim.traci4j.src.java.it.polito.appeal.traci.Vehicle.getCurrentRoute());
-                //sumo.do_job_set(Vehicle.setRoute(this.carro.getIdAuto(), ));
-                //sumo.do_job_set(Vehicle.setColor(this.carro.getIdAuto(), this.carro.getColorAuto()));
-                //this.sumo.do_timestep();
-            //}
-        } catch (Exception e) {
+                
+                addExecutando(this.executar.get(0));
+                delExecutar(0);
+
+    }catch (Exception e) {
                 e.printStackTrace();
             }
-	}
+}
+    public void addNovaRota(String rota) throws Exception{
+    try{
+    sumo.do_job_set(Vehicle.addFull(this.carro.getIdAuto(), 				//vehID
+            rota, 	                            //routeID 
+            "DEFAULT_VEHTYPE", 					//typeID 
+            "now", 								//depart  
+            "0", 								//departLane 
+            "0", 								//departPos 
+            "0",								//departSpeed
+            "current",							//arrivalLane 
+            "max",								//arrivalPos 
+            "current",							//arrivalSpeed 
+            "",									//fromTaz 
+            "",									//toTaz 
+            "", 								//line 
+            this.carro.getPersonCapacity(),		//personCapacity 
+            this.carro.getPersonNumber())		//personNumber
+        ); 
+    }catch (Exception e) {
+            sumo.do_job_set(Vehicle.setRouteID(this.carro.getIdAuto(),rota));
+            }
+
+    }
+
 
     public void setfuelDivida(int contaFuelStation, double fuelDivida){
         BotPayment botPayment = new BotPayment(contaFuelStation, fuelDivida);
@@ -277,30 +312,17 @@ public class Driver extends Thread{
         this.executadas.add(executando);
     }
 
-    public synchronized void delExecutar(Route executar){
+    public synchronized void delExecutar(int executar){
         this.executar.remove(executar);
     }
 
-    public synchronized void delExecutando(Route executar){
+    public synchronized void delExecutando(int executar){
         this.executando.remove(executar);
     }
 
     public synchronized void delExecutadas(Route executando){
         this.executadas.remove(executando);
     }
-
-    public synchronized ArrayList<Route> setExecutando(){
-        return this.executando;
-    }
-
-    public synchronized ArrayList<Route> setExecutar(){
-        return this.executar;
-    }
-
-    public synchronized ArrayList<Route> setExecutadas(){
-        return this.executadas;
-    }
-
 
     class BotPayment extends Thread{
         private int conta_recebendo;
@@ -319,14 +341,12 @@ public class Driver extends Thread{
                 Json json = new Json();
 
                 try {
-                
                     enviarMensagem(json.Json_pagamento(conta, conta_recebendo, valor));
-                    System.out.println("aquuuuuuuuuuuuui");
+                    
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                // conta.setSaldo(conta.getSaldo(conta.getLogin(), conta.getSenha())-this.valor,conta.getLogin(), conta.getSenha());
-                // conta_recebendo.setSaldo(conta_recebendo.getSaldo(conta_recebendo.getLogin(), conta_recebendo.getSenha())-this.valor,conta_recebendo.getLogin(), conta_recebendo.getSenha());
+                
             
         }
         

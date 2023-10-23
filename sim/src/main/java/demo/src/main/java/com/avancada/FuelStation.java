@@ -78,19 +78,18 @@ public class FuelStation extends  Thread{
         InputStreamReader inr = new InputStreamReader(in);
         BufferedReader bfr = new BufferedReader(inr);
         String msg = "";
-        System.out.println("escutaando3");
         Cryptography crpt = new Cryptography();
-        //while(!"Sair".equalsIgnoreCase(msg))
+        System.out.println("escutando");
 
             if(bfr.ready()){
                 msg = bfr.readLine();
+
                 msg = crpt.decrypt(msg, crpt.genKey(msg.length()));
-                System.out.println("FUEEEEEL RECEBEU O SALDO");
                 JSONObject mensagem = new JSONObject(msg);
                 if((int) mensagem.get("conta_recebendo")==this.conta){
                     if(mensagem.get("mensagem").equals("ver saldo")){
                         quant_abastecimento = (Double.parseDouble(mensagem.get("saldo").toString()));
-                        System.out.println("Abasteeeece" + quant_abastecimento);
+                        System.out.println("há: "+ quant_abastecimento);
                     }
                     if(mensagem.get("mensagem").equals("transacao")){
                         System.out.println(" PAGAMENTO RECEBIDO");
@@ -116,30 +115,31 @@ public class FuelStation extends  Thread{
     @Override
     public void run() {
         double qtd_combustivel = 0;
-        //while(getOn_off()){
-                //abastecer
+
                 try {
                     cliente.setAbastecendo(true);
                     Json json = new Json();
 		            enviarMensagem(json.Json_versaldo(cliente.getConta()));
-                    //System.out.println("escutaando1");
+                    Thread.sleep(200);
                     escutar();
-                    //System.out.println("escutaando2");
+                    
+                 
+
+                qtd_combustivel = this.quant_abastecimento/5.87;
+                cliente.getCar().setFuelTank(qtd_combustivel + cliente.getCar().getFuelTank());
+                
+                cliente.setfuelDivida(this.conta, this.quant_abastecimento);
+                
+                
+                if(!bomba1) {setbomba1(); if(espera) {notifyAll();}}
+                if(!bomba2) {setbomba2(); if(espera) {notifyAll();}}
+                Thread.sleep(1000);
+                cliente.setAbastecendo(false);
+                
                 } catch (Exception e) {
                     e.printStackTrace();
-                } 
-
-               qtd_combustivel = this.quant_abastecimento/5.87;
-               cliente.getCar().setFuelTank(qtd_combustivel + cliente.getCar().getFuelTank());
-               cliente.setAbastecendo(false);
-               System.out.println(qtd_combustivel);
-               //sacar da conta do driver
-               cliente.setfuelDivida(this.conta, this.quant_abastecimento);
-               System.out.println("enviei a divida");
-               if(!bomba1) {setbomba1(); if(espera) {notifyAll();}}
-               if(!bomba2) {setbomba2(); if(espera) {notifyAll();}}
                 }
-        //}
+        }
 
    
     public void setOn_off(){
@@ -165,7 +165,7 @@ public class FuelStation extends  Thread{
         bomba2=!bomba2;
     }
 
-    public synchronized static void setespera(Boolean espera){
-        espera = espera;
+    public synchronized static void setespera(Boolean espera1){
+        espera = espera1;
     }
 }

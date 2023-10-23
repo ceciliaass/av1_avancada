@@ -82,7 +82,7 @@ public class Car extends Vehicle implements Runnable {
 		try {
 			if (!this.getSumo().isClosed() && ((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.getIdAuto())) {
 
-				setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))/770000);
+				setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))*5/770000);
 				System.out.println("Tank                                        "+fuelTank );
 				System.out.println("Distância percorrida: "+(double) sumo.do_job_get(getDistance(this.idAuto)));
 				Json Json = new Json();
@@ -100,7 +100,7 @@ public class Car extends Vehicle implements Runnable {
 				
 				this.distancia();
 				this.RotaExecutada((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
-				//enviarMensagem(json_relatorio);
+				enviarMensagem(json_relatorio);
 				
 			}
 		} catch (Exception e) {

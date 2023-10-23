@@ -193,7 +193,7 @@ public class Driver extends Thread{
 
         System.out.println(this.carro.getFuelTank());
         while (!this.sumo.isClosed()) {
-            if(this.carro.getFuelTank()<=9.9 & this.abastecendo==false){
+            if(this.carro.getFuelTank()<=3.0 & this.abastecendo==false){
                 System.out.println("necessita de abastecimento");
                 try {
                     Thread posto = new FuelStation(this);

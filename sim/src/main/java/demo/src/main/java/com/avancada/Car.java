@@ -99,8 +99,8 @@ public class Car extends Vehicle implements Runnable {
 												(double) posicion.y);
 				
 				this.distancia();
-				//this.RotaExecutada((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
-				enviarMensagem(json_relatorio);
+				this.RotaExecutada((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
+				//enviarMensagem(json_relatorio);
 				
 			}
 		} catch (Exception e) {
@@ -123,11 +123,11 @@ public class Car extends Vehicle implements Runnable {
 	}
 	private void distancia() throws Exception{
 		if(!this.getSumo().isClosed()){
-			if(distancia+170 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
+			if(distancia+1000 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
 				Json json = new Json();
 				
 				enviarMensagem(json.Json_pagamentoDriver("pagar", this.contaDriver));
-				distancia = distancia + 170;
+				distancia = distancia + 1000;
 			}
 		}
 	}

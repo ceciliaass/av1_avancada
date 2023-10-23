@@ -49,7 +49,7 @@ public class Main {
         AlphaBank.main(args);
         Company.main(args);
 
-        for(int i=0; i<1;i++){
+        for(int i=0; i<100;i++){
             Car carro = new Car(true, ("CAR"+i) , sumo,fuelType, fuelPrice, i);
             Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*9, (i*9)+9);
             motorista.start();

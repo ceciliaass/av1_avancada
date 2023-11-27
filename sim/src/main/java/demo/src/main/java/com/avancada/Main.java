@@ -49,9 +49,13 @@ public class Main {
         AlphaBank.main(args);
         Company.main(args);
 
-        for(int i=0; i<100;i++){
+        Car_rec carro_rec = new Car_rec(true, ("CAR_0") , sumo,fuelType, fuelPrice, 0);
+        Driver_rec motorista_rec = new Driver_rec(carro_rec,  sumo, "Motorista_0", 0, 0, 100);
+        motorista_rec.start();
+
+        for(int i=0; i<1;i++){
             Car carro = new Car(true, ("CAR"+i) , sumo,fuelType, fuelPrice, i);
-            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*9, (i*9)+9);
+            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*100, (i*1)+100);
             motorista.start();
             Thread.sleep(100);
             motoristas.add(motorista);         

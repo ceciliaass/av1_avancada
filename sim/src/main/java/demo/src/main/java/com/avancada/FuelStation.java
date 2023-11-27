@@ -117,7 +117,7 @@ public class FuelStation extends  Thread{
         double qtd_combustivel = 0;
 
                 try {
-                    cliente.setAbastecendo(true);
+                    //cliente.setAbastecendo(true);
                     Json json = new Json();
 		            enviarMensagem(json.Json_versaldo(cliente.getConta()));
                     Thread.sleep(200);
@@ -134,7 +134,7 @@ public class FuelStation extends  Thread{
                 if(!bomba1) {setbomba1(); if(espera) {notifyAll();}}
                 if(!bomba2) {setbomba2(); if(espera) {notifyAll();}}
                 Thread.sleep(1000);
-                cliente.setAbastecendo(false);
+                //cliente.setAbastecendo(false);
                 
                 } catch (Exception e) {
                     e.printStackTrace();

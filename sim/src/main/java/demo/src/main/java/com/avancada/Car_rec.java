@@ -1,3 +1,4 @@
+
 package demo.src.main.java.com.avancada;
 
 import java.io.IOException;
@@ -6,7 +7,9 @@ import de.tudresden.sumo.cmd.Vehicle;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -15,6 +18,9 @@ import java.io.Writer;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -24,7 +30,7 @@ import de.tudresden.sumo.objects.SumoStringList;
 
 import it.polito.appeal.traci.SumoTraciConnection;
 
-public class Car extends Vehicle implements Runnable {
+public class Car_rec extends Vehicle implements Runnable {
     
 	private Socket socket;
     private OutputStream ou ;
@@ -46,10 +52,14 @@ public class Car extends Vehicle implements Runnable {
 	private int personCapacity;		// the total number of persons that can ride in this vehicle
 	private int personNumber;		// the total number of persons which are riding in this vehicle
 	private double distancia;
-
+	private double range_dist;
+	private double[] y = new double[] {900.0, 109.6352103,	186.33918,	224.3269458,	112.0867752,	152.0420778};
+	private double[] v = new double[] {0.5 , 9.502295778,	27.0553505,	51.32731668,	6.577071701,	25.90185436};
+	private double[][] A = new double[][] {{1, -1, -1, -1, -1 ,- 1}};
+	private long tempo_anterior;
+	private double tempo_total;
 	private String rota_atual;
-	private int contaDriver;
-	public Car(boolean _on_off, String _idAuto, SumoTraciConnection _sumo, int fuelType, double _fuelPrice, int contaDriver) throws IOException {
+	public Car_rec(boolean _on_off, String _idAuto, SumoTraciConnection _sumo, int fuelType, double _fuelPrice, int contaDriver) throws IOException {
 		super(); 
         this.txtIP = ("127.0.0.1");
         this.txtPorta = "12346";
@@ -58,18 +68,29 @@ public class Car extends Vehicle implements Runnable {
 		this.idAuto = _idAuto;
 		
 		this.sumo = _sumo;
-		this.contaDriver = contaDriver;
 		this.fuelPrice = _fuelPrice;
 		this.fuelType = fuelType;
 		this.distancia =0;
+		this.range_dist = 0;
+		tempo_total =0;
 	}
 
 	@Override
 	public void run() {
-
+		this.tempo_anterior = System.nanoTime();
+		// System.out.println("teste");
+		// try {
+		// 	while(!this.getSumo().isClosed() && !((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.getIdAuto())){}
+		// } catch (Exception e) {
+		// 	e.printStackTrace();
+		// }
+		// this.relatorio();
+		// System.out.println("teste");
 		while (!this.getSumo().isClosed()) {
 			try {
-				this.relatorio();
+				System.out.println("Distância percorrida: "+(double) sumo.do_job_get(getDistance(this.idAuto)));
+				//this.relatorio();
+				this.distancia_medidor();
 				Thread.sleep(200);				
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -78,30 +99,26 @@ public class Car extends Vehicle implements Runnable {
 	}
 
 	private void relatorio() {
-
 		try {
 			if (!this.getSumo().isClosed() && ((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.getIdAuto())) {
-
-				setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))*5/770000);
-				System.out.println("Tank                                        "+fuelTank );
-				System.out.println("Distância percorrida: "+(double) sumo.do_job_get(getDistance(this.idAuto)));
+				//System.err.println("distanciaaaa_mediu");
+				//setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))*5/770000);
+				//System.out.println("Tank                                        "+fuelTank );
 				Json Json = new Json();
 				SumoPosition2D posicion = (SumoPosition2D) sumo.do_job_get(getPosition(this.idAuto));
-				double[] coord= converterGeo((double) posicion.x, (double) posicion.y);
-				String json_relatorio= Json.Json_RelatorioCar(System.currentTimeMillis() * 1000000, this.idAuto, 
+				String json_relatorio= Json.Json_RelatorioCar(System.nanoTime() - this.tempo_anterior, 
+												this.idAuto, 
 												(String) this.sumo.do_job_get(getRouteID(this.idAuto)), 
 												(double) sumo.do_job_get(getSpeed(this.idAuto)), 
-												(double) sumo.do_job_get(getDistance(this.idAuto)), 
+												this.range_dist*10, 
 												(double) sumo.do_job_get(getFuelConsumption(this.idAuto)), 
 												this.fuelType, 
 												(double) sumo.do_job_get(getCO2Emission(this.idAuto)), 
 												(double) posicion.x, 
 												(double) posicion.y);
-				
-				this.distancia();
-				this.RotaExecutada((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
+
 				enviarMensagem(json_relatorio);
-				
+				this.distancia_medidor();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -112,39 +129,104 @@ public class Car extends Vehicle implements Runnable {
 		sumo.do_job_set(Vehicle.setSpeed(this.idAuto, vel));
 	}
 
+	public void setDistancia(double d) throws Exception{
+		this.range_dist = d;
+		this.distancia = d;
+	}
 	public int getRoute() throws Exception{
 		return Integer.parseInt((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
 	}
 
-
-	private void RotaExecutada(String rota) throws Exception{
-		Json json = new Json();
-		enviarMensagem(json.Json_RotaExecutando(rota));
-	}
-	private void distancia() throws Exception{
-		if(!this.getSumo().isClosed()){
-			if(distancia+1000 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
-				Json json = new Json();
-				
-				enviarMensagem(json.Json_pagamentoDriver("pagar", this.contaDriver));
-				distancia = distancia + 1000;
+	private void distancia_medidor() throws Exception{
+		if (!this.getSumo().isClosed() && ((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.getIdAuto())) {
+			System.out.println((double) sumo.do_job_get(getDistance(this.idAuto)) - this.distancia);
+			if((double) sumo.do_job_get(getDistance(this.idAuto)) - this.distancia >= 300.00){ //(double) sumo.do_job_get(getDistance(this.idAuto)) == 0.00 ||
+				this.range_dist = (double) sumo.do_job_get(getDistance(this.idAuto)) - this.distancia;
+				this.distancia = (double) sumo.do_job_get(getDistance(this.idAuto));
+				//relatorio();
+				double v = getReconciliacao();
+				System.out.println("v " +v);
+				sumo.do_job_set(Vehicle.setSpeed(this.idAuto, v));
+				//this.tempo_anterior = System.nanoTime();
+				System.err.println("distanciaaaa_mediu");
 			}
 		}
 	}
 
+	private double getReconciliacao() throws Exception{
 
-	private double[] converterGeo(Double x, Double y) {
+		double diferenca = (System.nanoTime() - this.tempo_anterior)/(1000000000.0);
+		this.tempo_anterior = System.nanoTime();
+		this.tempo_total += diferenca;
+		System.out.println(this.tempo_total);
+		System.out.println("diferenca " + diferenca);
+		int novo_tam = y.length -1;
+		double[] y_aux = new  double[novo_tam];
+		double[][] A_aux = new double[1][novo_tam];
+		double[] v_aux = new double[novo_tam];
+		y_aux[0] = y[0] - diferenca;
+		A_aux[0][0] = A[0][0];
+		v_aux[0] = v[0];
+		for (int i = 1; i < novo_tam; i++) {
+            y_aux[i] = y[i+1];
+			A_aux[0][i] = A[0][i+1];
+			v_aux[i] = v[i+1];
+        }
+		if(novo_tam>=2){
+			y_aux[1] += y[1]-diferenca;
+		}
+		y=null;
+		y =y_aux;
+
+		A = null;
+		A = A_aux;
+
+		v = null;
+		v = v_aux;
+		System.out.println(y[0]);
+		Reconciliation rec = new Reconciliation(y, v, A);
 		
-		double EARTH_RADIUS = 6371.0;
-	
-		x = x*1000000000;
-		y = y*1000000000;
-		double z = Math.sqrt(Math.pow(EARTH_RADIUS, 2) - Math.pow(x, 2) - Math.pow(y, 2));
-		double longitude = Math.atan(y / x);
-		double latitude = Math.atan(z / Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)));
+        double[] res = rec.getReconciledFlow();
+		System.out.println("novo :");
+		rec.printMatrix(rec.getReconciledFlow());
+
+        y= res;
+
+		relatorio_reconciliação(900.0-tempo_total,tempo_total,diferenca, (double) sumo.do_job_get(getSpeed(this.idAuto)), y);
+		return 3000/res[1];
+	}
+
+	private void relatorio_reconciliação(double resto, double gasto,double percurso, double vel_rec, double[] tempos) throws IOException{
+		String excelFilePath = "sim/data/relatorio_reconciliacao.xlsx";
+        FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+        XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+        int rowCount = workbook.getSheetAt(0).getPhysicalNumberOfRows();
+        Row row = workbook.getSheetAt(0).createRow(rowCount);
+        int cellnum = 0;
+        Cell timestamp = row.createCell(cellnum++);
+        timestamp.setCellValue(resto);
+
+        Cell IdCar = row.createCell(cellnum++);
+        IdCar.setCellValue(gasto);
+
+        Cell IdRoute = row.createCell(cellnum++);
+        IdRoute.setCellValue(percurso);
+
+        Cell Speed = row.createCell(cellnum++);
+        Speed.setCellValue(vel_rec);
 
 
-		return new double[] {latitude, longitude}; 
+        // Crie células na linha e insira valores
+        for (int i = 0; i < tempos.length; i++) {
+            Cell tempo = row.createCell(cellnum++);
+        	tempo.setCellValue(tempos[i]);
+			
+        }
+
+        FileOutputStream out = new FileOutputStream(new File(excelFilePath));
+        workbook.write(out);
+        out.close();
+        workbook.close();
 	}
 
 	public boolean isOn_off() {

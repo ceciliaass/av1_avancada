@@ -121,8 +121,8 @@ public class AlphaBank extends Thread{
 
     private void deposito(Double valor, int i) throws InterruptedException{
         contas.get(i).setSaldo(contas.get(i).getSaldo(contas.get(i).getLogin(), contas.get(i).getSenha())+valor,contas.get(i).getLogin(), contas.get(i).getSenha());
-        Thread.sleep(200);
-        contas.get(i).start();
+        // Thread.sleep(200);
+        // contas.get(i).start();
     }
 
     private double getSaldo(int i){

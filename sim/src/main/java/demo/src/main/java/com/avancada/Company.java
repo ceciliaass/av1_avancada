@@ -149,17 +149,17 @@ public class Company extends Thread {
                 if(mensagem.get("mensagem").equals("getrotas")){
                     sendRoutes(bfw);
                 }
-                if(mensagem.get("mensagem").equals("rota")){
-                    if(executar.size()==900){
-                        addExecutando(executar.get(Integer.parseInt(mensagem.get("rota").toString())));
-                        delExecutar(Integer.parseInt(mensagem.get("rota").toString()));
-                    }else{
-                    addExecutadas(executando.get(executando.size()-1));
-                    delExecutando(executando.size()-1);
-                    delExecutar(Integer.parseInt(mensagem.get("rota").toString()));
-                    addExecutando((Route) mensagem.get("rota"));
-                    }
-                }
+                // if(mensagem.get("mensagem").equals("rota")){
+                //     if(executar.size()==900){
+                //         addExecutando(executar.get(Integer.parseInt(mensagem.get("rota").toString())));
+                //         delExecutar(Integer.parseInt(mensagem.get("rota").toString()));
+                //     }else{
+                //     addExecutadas(executando.get(executando.size()-1));
+                //     delExecutando(executando.size()-1);
+                //     delExecutar(Integer.parseInt(mensagem.get("rota").toString()));
+                //     addExecutando((Route) mensagem.get("rota"));
+                //     }
+                // }
                 if(mensagem.get("mensagem").equals("pagar")){
                     pagarDriver((int) mensagem.get("conta"), this.conta);
                 }
@@ -261,8 +261,8 @@ public class Company extends Thread {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(uriItineraryXML);
 			NodeList nList = doc.getElementsByTagName("vehicle");
-			for (int i = 0; i < nList.getLength(); i++) {
-				Node nNode = nList.item(i);
+			for (int i = 0; i < 100; i++) {
+				Node nNode = nList.item(0);
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element elem = (Element) nNode;
 					String idRouteAux = String.valueOf(i);

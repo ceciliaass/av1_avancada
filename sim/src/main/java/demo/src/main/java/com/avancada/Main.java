@@ -46,17 +46,18 @@ public class Main {
 
         thread.start();
 
-        AlphaBank.main(args);
-        Company.main(args);
+        AlphaBank.main(args, sumo);
+        Company.main(args, sumo);
 
-        Car_rec carro_rec = new Car_rec(true, ("CAR_0") , sumo,fuelType, fuelPrice, 0);
-        Driver_rec motorista_rec = new Driver_rec(carro_rec,  sumo, "Motorista_0", 0, 0, 100);
-        motorista_rec.start();
+        // Car_rec carro_rec = new Car_rec(true, ("CARrec_0") , sumo,fuelType, fuelPrice, 0);
+        // Driver_rec motorista_rec = new Driver_rec(carro_rec,  sumo, "Motorista_0", 0, 0, 100);
+        // motorista_rec.start();
 
-        for(int i=0; i<1;i++){
+        for(int i=0; i<2;i++){
             Car carro = new Car(true, ("CAR"+i) , sumo,fuelType, fuelPrice, i);
-            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*100, (i*1)+100);
+            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*1, (i*1)+1);
             motorista.start();
+            System.out.println("Start thread motorista: " + System.nanoTime());
             Thread.sleep(100);
             motoristas.add(motorista);         
         }

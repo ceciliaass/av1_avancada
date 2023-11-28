@@ -14,6 +14,8 @@ import java.util.ArrayList;
 
 import org.json.JSONObject;
 
+import it.polito.appeal.traci.SumoTraciConnection;
+
 public class AlphaBank extends Thread{
     private static ArrayList<BufferedWriter>clientes;
     private ArrayList<Account> contas;
@@ -129,7 +131,7 @@ public class AlphaBank extends Thread{
         return contas.get(i).getSaldo(contas.get(i).getLogin(), contas.get(i).getSenha());
     }
 
-    public static void main(String []args) {
+    public static void main(String []args, SumoTraciConnection sumo) {
         ArrayList<Account> contass = new ArrayList<Account>();
         for(int i=0;i<100;i++){
             contass.add(new Account(50.0, "abc", "123", i));
@@ -146,7 +148,7 @@ public class AlphaBank extends Thread{
                 server = new ServerSocket(Integer.parseInt("12347"));
                 clientes = new ArrayList<BufferedWriter>();
                 
-                while(true){
+                while(!sumo.isClosed()){
                     Socket con = server.accept();
                     Thread t = new AlphaBank(con, contass);
                     t.start();

@@ -12,6 +12,8 @@ import java.net.Socket;
 
 import org.json.JSONObject;
 
+import de.tudresden.sumo.cmd.Vehicle;
+
 public class FuelStation extends  Thread{
     //private int bombas;
     private int conta;
@@ -38,7 +40,6 @@ public class FuelStation extends  Thread{
         this.conta = 101;
         //this.bombas = 2;
         this.on_off = true;
-        conectar();
     }
 
     /***
@@ -63,7 +64,7 @@ public class FuelStation extends  Thread{
     public void enviarMensagem(String msg) throws Exception{
 		Cryptography crpt = new Cryptography();
 		msg=crpt.encrypt(msg, crpt.genKey(msg.length()));
-
+        conectar();
         bfw.write(msg+"\r\n");    
         bfw.flush();
     }
@@ -80,23 +81,20 @@ public class FuelStation extends  Thread{
         String msg = "";
         Cryptography crpt = new Cryptography();
         System.out.println("escutando");
-
-            if(bfr.ready()){
-                msg = bfr.readLine();
-
-                msg = crpt.decrypt(msg, crpt.genKey(msg.length()));
-                JSONObject mensagem = new JSONObject(msg);
-                if((int) mensagem.get("conta_recebendo")==this.conta){
-                    if(mensagem.get("mensagem").equals("ver saldo")){
-                        quant_abastecimento = (Double.parseDouble(mensagem.get("saldo").toString()));
-                        System.out.println("há: "+ quant_abastecimento);
-                    }
-                    if(mensagem.get("mensagem").equals("transacao")){
-                        System.out.println(" PAGAMENTO RECEBIDO");
-                    }
-                }
+        msg = bfr.readLine();
+        msg = crpt.decrypt(msg, crpt.genKey(msg.length()));
+        JSONObject mensagem = new JSONObject(msg);
+        if((int) mensagem.get("conta_recebendo")==this.conta){
+            if(mensagem.get("mensagem").equals("ver saldo")){
+                quant_abastecimento = (Double.parseDouble(mensagem.get("saldo").toString()));
+                System.out.println("há: "+ quant_abastecimento);
             }
+            if(mensagem.get("mensagem").equals("transacao")){
+                System.out.println(" PAGAMENTO RECEBIDO");
+            }
+        }
     }
+    
 
     /***
      * Método usado quando o usu�rio clica em sair
@@ -114,10 +112,11 @@ public class FuelStation extends  Thread{
 
     @Override
     public void run() {
+        System.out.println("Run thread posto: "+ this.cliente.nome() +" " + System.nanoTime());
         double qtd_combustivel = 0;
 
                 try {
-                    //cliente.setAbastecendo(true);
+                    cliente.setAbastecendo(true);
                     Json json = new Json();
 		            enviarMensagem(json.Json_versaldo(cliente.getConta()));
                     Thread.sleep(200);
@@ -126,19 +125,21 @@ public class FuelStation extends  Thread{
                  
 
                 qtd_combustivel = this.quant_abastecimento/5.87;
+                System.err.println(qtd_combustivel + cliente.getCar().getFuelTank());
                 cliente.getCar().setFuelTank(qtd_combustivel + cliente.getCar().getFuelTank());
                 
                 cliente.setfuelDivida(this.conta, this.quant_abastecimento);
                 
-                
-                if(!bomba1) {setbomba1(); if(espera) {notifyAll();}}
-                if(!bomba2) {setbomba2(); if(espera) {notifyAll();}}
-                Thread.sleep(1000);
-                //cliente.setAbastecendo(false);
+                if(!bomba1) {setbomba1(); /*if(espera) {notifyAll();}*/}
+            if(!bomba2) {setbomba2(); /*if(espera) {notifyAll();}*/}
+                //Thread.sleep(1000);
+                cliente.setAbastecendo(false);
                 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                System.out.println("Fim run thread posto: "+this.cliente.nome() +" "  + System.nanoTime());
+                System.err.println();
         }
 
    

@@ -28,7 +28,6 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -249,8 +248,8 @@ public class Company extends Thread {
     void pagarDriver(int contaRecebendo, int contaPagando){
         BotPayment botPayment = new BotPayment(contaRecebendo);
         Thread t1 = new Thread(botPayment);
-
         t1.start();
+        System.out.println("Start thread botPayment: " + System.nanoTime());
     }
 
     public void Definir_percurso(){
@@ -261,8 +260,8 @@ public class Company extends Thread {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document doc = builder.parse(uriItineraryXML);
 			NodeList nList = doc.getElementsByTagName("vehicle");
-			for (int i = 0; i < 100; i++) {
-				Node nNode = nList.item(0);
+			for (int i = 0; i < nList.getLength(); i++) {
+				Node nNode = nList.item(i);
 				if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 					Element elem = (Element) nNode;
 					String idRouteAux = String.valueOf(i);
@@ -314,14 +313,14 @@ public class Company extends Thread {
         this.executadas.remove(executando);
     }
     
-    public static void main(String []args) {
+    public static void main(String []args, SumoTraciConnection sumo) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try{
 
                 server = new ServerSocket(Integer.parseInt("12346"));
-                while(true){
+                while(!sumo.isClosed()){
                     Socket con = server.accept();
                     Thread t = new Company(con);
                     t.start();
@@ -345,6 +344,7 @@ public class Company extends Thread {
 
         @Override
         public void run() {
+                System.out.println("Run thread botPayment: "+ conta_recebendo +" "+ System.nanoTime());
                 Json json = new Json();
 
                 try {     
@@ -352,7 +352,8 @@ public class Company extends Thread {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
+            System.out.println("Fim run thread botPayment: "+ conta_recebendo +" " + System.nanoTime()); 
+            System.err.println();   
         }
         
     } 

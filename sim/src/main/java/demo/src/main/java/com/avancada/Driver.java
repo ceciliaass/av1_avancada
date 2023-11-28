@@ -42,7 +42,7 @@ public class Driver extends Thread{
     private BufferedWriter bfw;
     private String txtIP;
     private String txtPorta;
-    //private String txtNome;
+    private String txtNome;
     Socket con;
     private int inf;
     private int sup;
@@ -51,7 +51,7 @@ public class Driver extends Thread{
         
         this.txtIP = "127.0.0.2";
         this.txtPorta = "12347";
-        //this.txtNome = txtNome;
+        this.txtNome = txtNome;
         this.carro =  carro;
         this.conta = conta;
         //this.banco= banco;
@@ -130,6 +130,7 @@ public class Driver extends Thread{
    
     @Override
     public void run() {
+        System.out.println("Run thread motorista: " +txtNome+ " "+ System.nanoTime());
         try {
            // System.out.println("solicita");
             //Thread.sleep(00);
@@ -142,58 +143,59 @@ public class Driver extends Thread{
         initializeRoutes();
         Thread thread = new Thread (carro);
         thread.start();
+        System.out.println("Start thread carro: "+this.carro.getIdAuto() + " " + System.nanoTime());
 
-        Thread p = new Thread (new Runnable() {
-            public void run() {
-                while (!sumo.isClosed()) {
-                    try {
+        // Thread p = new Thread (new Runnable() {
+        //     public void run() {
+        //         while (!sumo.isClosed()) {
+        //             try {
                     
-                SumoStringList carros = (SumoStringList) sumo.do_job_get(Vehicle.getIDList());
+        //         SumoStringList carros = (SumoStringList) sumo.do_job_get(Vehicle.getIDList());
                 
-                boolean teste = true;
-                while (teste) {
-                    if (carros.size() > 0) {
-                        if ((carros).contains(carro.getIdAuto())) {
-                            teste = false;
-                        }
-                    }
-                    carros = (SumoStringList) sumo.do_job_get(Vehicle.getIDList());
-                }
+        //         boolean teste = true;
+        //         while (teste) {
+        //             if (carros.size() > 0) {
+        //                 if ((carros).contains(carro.getIdAuto())) {
+        //                     teste = false;
+        //                 }
+        //             }
+        //             carros = (SumoStringList) sumo.do_job_get(Vehicle.getIDList());
+        //         }
 
-                boolean rota_executando = true;
+        //         boolean rota_executando = true;
 
-                while (rota_executando) {
-                    if (!(carros).contains(carro.getIdAuto())){
-                         rota_executando = false;
-                         thread.interrupt();
-                    } 
-                    //Thread.sleep(200);
-                    carros = (SumoStringList) sumo.do_job_get(Vehicle.getIDList());
-                }
+        //         while (rota_executando) {
+        //             if (!(carros).contains(carro.getIdAuto())){
+        //                  rota_executando = false;
+        //                  thread.interrupt();
+        //             } 
+        //             //Thread.sleep(200);
+        //             carros = (SumoStringList) sumo.do_job_get(Vehicle.getIDList());
+        //         }
 
                 
-                addNovaRota(executar.get(0).getIdItinerary());
-                thread.start();
+        //         addNovaRota(executar.get(0).getIdItinerary());
+        //         thread.start();
                         
-                addExecutando(executar.get(0));
-                addExecutadas(executando.get(0));
-                delExecutar(0);
-                delExecutando(0);
-                        // System.out.println("executaaar" +this.executando.size());
-                        // System.out.println("executaaar" +this.executar.size());
-                }
-            catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-                }
-            }
-        });
-        p.start();
+        //         addExecutando(executar.get(0));
+        //         addExecutadas(executando.get(0));
+        //         delExecutar(0);
+        //         delExecutando(0);
+        //                 // System.out.println("executaaar" +this.executando.size());
+        //                 // System.out.println("executaaar" +this.executar.size());
+        //         }
+        //     catch (Exception e) {
+        //         // TODO Auto-generated catch block
+        //         e.printStackTrace();
+        //     }
+        //         }
+        //     }
+        // });
+        // p.start();
 
-        System.out.println(this.carro.getFuelTank());
+        //System.out.println(this.carro.getFuelTank());
         while (!this.sumo.isClosed()) {
-            if(this.carro.getFuelTank()<=3.0 & this.abastecendo==false){
+            if(this.carro.getFuelTank()<=9.3 & this.abastecendo==false){
                 System.out.println("necessita de abastecimento");
                 try {
                     Thread posto = new FuelStation(this);
@@ -201,29 +203,43 @@ public class Driver extends Thread{
                     if(FuelStation.getbomba1()){
                         FuelStation.setbomba1();
                         posto.start();
-                        Thread.sleep(20000);
+                        System.out.println("Start thread posto1: " + System.nanoTime());
+                        double vel = (double) sumo.do_job_get(Car.getSpeed(carro.getIdAuto()));
+                        sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), 0));
+                        Thread.sleep(120000);
+                        sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), vel));
                     }else if(FuelStation.getbomba2()){
                         posto.start();
+                        System.out.println("Start thread posto2: " + System.nanoTime());
                         FuelStation.setbomba2();
-                        Thread.sleep(20000);
-                    }else{
-                        FuelStation.setespera(true);
-                        while(!FuelStation.getbomba2() || !FuelStation.getbomba1()){
-                            posto.wait();
-                        }
-                        FuelStation.setespera(false);
-                        System.out.println("");
+                        double vel = (double) sumo.do_job_get(Car.getSpeed(carro.getIdAuto()));
+                        sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), 0));
+                        Thread.sleep(120000);
+                        sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), vel));
                     }
+                    // else{
+                    //     FuelStation.setespera(true);
+                    //     while(!FuelStation.getbomba2() || !FuelStation.getbomba1()){
+                    //         posto.wait();
+                    //     }
+                    //     FuelStation.setespera(false);
+                    //     System.out.println("");
+                    // }
                 
                     Thread.sleep(1000);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                    e.printStackTrace();
-                 }
+                 } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
             
         }
+        System.out.println("Fim run thread motorista: "+txtNome + " "  + System.nanoTime());
+        System.err.println();
     }
 
     public void setAbastecendo(Boolean situacao){
@@ -233,14 +249,14 @@ public class Driver extends Thread{
 
         SumoStringList edge = new SumoStringList();
         try{
-        for(int i =0; i<this.executar.size();i++){
-                for (String e : executar.get(i).getEdges().split(" ")) {
+        //for(int i =0; i<this.executar.size();i++){
+                for (String e : executar.get(0).getEdges().split(" ")) {
                     edge.add(e);
                 }
-                sumo.do_job_set(de.tudresden.sumo.cmd.Route.add(executar.get(i).getIdItinerary(), edge));
+                sumo.do_job_set(de.tudresden.sumo.cmd.Route.add(executar.get(0).getIdItinerary(), edge));
                 
                 edge.clear();
-        }
+        //}
                 sumo.do_job_set(Vehicle.addFull(this.carro.getIdAuto(), 				//vehID
                                                 executar.get(0).getIdItinerary(), 	//routeID 
                                                 "DEFAULT_VEHTYPE", 					//typeID 
@@ -304,6 +320,10 @@ public class Driver extends Thread{
         return carro;
     }
 
+    public String nome(){
+        return txtNome;
+    }
+
     public synchronized void addExecutando(Route executar){
         this.executando.add(executar);
     }
@@ -337,7 +357,7 @@ public class Driver extends Thread{
 
         @Override
         public void run() {
-
+                System.out.println("Run thread botPayment: "+txtNome + " "  + System.nanoTime());
                 Json json = new Json();
 
                 try {
@@ -347,7 +367,8 @@ public class Driver extends Thread{
                     e.printStackTrace();
                 }
                 
-            
+                System.out.println("Fim Run thread botPayment: "+txtNome + " "  + System.nanoTime());
+                System.err.println();
         }
         
 

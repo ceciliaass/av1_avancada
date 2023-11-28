@@ -66,15 +66,19 @@ public class Car extends Vehicle implements Runnable {
 
 	@Override
 	public void run() {
-
+		System.out.println("Run thread carro: "+getIdAuto()+" " + System.nanoTime());
 		while (!this.getSumo().isClosed()) {
 			try {
 				this.relatorio();
+				// setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))*5/770000);
+				// System.out.println("Tank                                        "+fuelTank );
 				Thread.sleep(200);				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("Fim run thread carro: "+getIdAuto()+" " + System.nanoTime());
+		System.err.println();
 	}
 
 	private void relatorio() {
@@ -83,8 +87,8 @@ public class Car extends Vehicle implements Runnable {
 			if (!this.getSumo().isClosed() && ((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.getIdAuto())) {
 
 				setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))*5/770000);
-				System.out.println("Tank                                        "+fuelTank );
-				System.out.println("Distância percorrida: "+(double) sumo.do_job_get(getDistance(this.idAuto)));
+				//System.out.println("Tank                                        "+fuelTank );
+				//System.out.println("Distância percorrida: "+(double) sumo.do_job_get(getDistance(this.idAuto)));
 				Json Json = new Json();
 				SumoPosition2D posicion = (SumoPosition2D) sumo.do_job_get(getPosition(this.idAuto));
 				double[] coord= converterGeo((double) posicion.x, (double) posicion.y);
@@ -100,7 +104,7 @@ public class Car extends Vehicle implements Runnable {
 				
 				this.distancia();
 				this.RotaExecutada((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
-				enviarMensagem(json_relatorio);
+				//enviarMensagem(json_relatorio);
 				
 			}
 		} catch (Exception e) {
@@ -123,11 +127,11 @@ public class Car extends Vehicle implements Runnable {
 	}
 	private void distancia() throws Exception{
 		if(!this.getSumo().isClosed()){
-			if(distancia+1000 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
+			if(distancia+100 <= (double) sumo.do_job_get(getDistance(this.idAuto))){
 				Json json = new Json();
 				
 				enviarMensagem(json.Json_pagamentoDriver("pagar", this.contaDriver));
-				distancia = distancia + 1000;
+				distancia = distancia + 100;
 			}
 		}
 	}
@@ -202,6 +206,7 @@ public class Car extends Vehicle implements Runnable {
 		return fuelTank;
 	}
 	public void setFuelTank(Double fuelTank){
+
 		this.fuelTank = fuelTank;
 	}
 

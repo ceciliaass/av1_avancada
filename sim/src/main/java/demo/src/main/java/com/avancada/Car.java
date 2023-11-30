@@ -67,15 +67,25 @@ public class Car extends Vehicle implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("Run thread carro: "+getIdAuto()+" " + System.nanoTime());
-		while (!this.getSumo().isClosed()) {
-			try {
-				this.relatorio();
-				// setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))*5/770000);
-				// System.out.println("Tank                                        "+fuelTank );
-				Thread.sleep(200);				
-			} catch (Exception e) {
-				e.printStackTrace();
+		try {
+			while(!this.getSumo().isClosed() && !((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.getIdAuto())){}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			while (!this.getSumo().isClosed() && ((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.getIdAuto())) {
+				try {
+					this.relatorio();
+					// setFuelTank(fuelTank - ((double) sumo.do_job_get(getFuelConsumption(this.idAuto)))*5/770000);
+					// System.out.println("Tank                                        "+fuelTank );
+					Thread.sleep(200);				
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		System.out.println("Fim run thread carro: "+getIdAuto()+" " + System.nanoTime());
 		System.err.println();
@@ -103,7 +113,7 @@ public class Car extends Vehicle implements Runnable {
 												(double) posicion.y);
 				
 				this.distancia();
-				this.RotaExecutada((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
+				//this.RotaExecutada((String) this.sumo.do_job_get(getRouteID(this.idAuto)));
 				//enviarMensagem(json_relatorio);
 				
 			}

@@ -53,7 +53,7 @@ public class Car_rec extends Vehicle implements Runnable {
 	private int personNumber;		// the total number of persons which are riding in this vehicle
 	private double distancia;
 	private double range_dist;
-	private double[] y = new double[] {900.0, 109.6352103,	186.33918,	224.3269458,	112.0867752,	152.0420778};
+	private double[] y = new double[] {780.0, 109.6352103,	186.33918,	224.3269458,	112.0867752,	152.0420778};
 	private double[] v = new double[] {0.5 , 9.502295778,	27.0553505,	51.32731668,	6.577071701,	25.90185436};
 	private double[][] A = new double[][] {{1, -1, -1, -1, -1 ,- 1}};
 	private long tempo_anterior;
@@ -191,12 +191,15 @@ public class Car_rec extends Vehicle implements Runnable {
 		rec.printMatrix(rec.getReconciledFlow());
 
         y= res;
-
-		relatorio_reconciliação(900.0-tempo_total,tempo_total,diferenca, (double) sumo.do_job_get(getSpeed(this.idAuto)), y);
+		double[] vels = new double[y.length];
+		for (int i = 0; i<y.length ; i++){
+			vels[i] = 3000/y[i];
+		}
+		relatorio_reconciliação(900.0-tempo_total,tempo_total,diferenca, (double) sumo.do_job_get(getSpeed(this.idAuto)), y, vels);
 		return 3000/res[1];
 	}
 
-	private void relatorio_reconciliação(double resto, double gasto,double percurso, double vel_rec, double[] tempos) throws IOException{
+	private void relatorio_reconciliação(double resto, double gasto,double percurso, double vel_rec, double[] tempos, double[] vels) throws IOException{
 		String excelFilePath = "sim/data/relatorio_reconciliacao.xlsx";
         FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
         XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
@@ -221,6 +224,11 @@ public class Car_rec extends Vehicle implements Runnable {
             Cell tempo = row.createCell(cellnum++);
         	tempo.setCellValue(tempos[i]);
 			
+        }
+
+		for (int i = 0; i < vels.length; i++) {
+            Cell vel = row.createCell(cellnum++);
+        	vel.setCellValue(vels[i]);	
         }
 
         FileOutputStream out = new FileOutputStream(new File(excelFilePath));

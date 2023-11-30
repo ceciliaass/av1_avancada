@@ -194,49 +194,59 @@ public class Driver extends Thread{
         // p.start();
 
         //System.out.println(this.carro.getFuelTank());
-        while (!this.sumo.isClosed()) {
-            if(this.carro.getFuelTank()<=9.3 & this.abastecendo==false){
-                System.out.println("necessita de abastecimento");
-                try {
-                    Thread posto = new FuelStation(this);
+        try {
+			while(!sumo.isClosed() && !((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.carro.getIdAuto())){}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        try {
+            while (!this.sumo.isClosed() && ((SumoStringList) sumo.do_job_get(Vehicle.getIDList())).contains(this.carro.getIdAuto())) {
+                if(this.carro.getFuelTank()<=9.3 & this.abastecendo==false){
+                    System.out.println("necessita de abastecimento");
+                    try {
+                        Thread posto = new FuelStation(this);
+                        
+                        if(FuelStation.getbomba1()){
+                            FuelStation.setbomba1();
+                            posto.start();
+                            System.out.println("Start thread posto1: " + System.nanoTime());
+                            double vel = (double) sumo.do_job_get(Car.getSpeed(carro.getIdAuto()));
+                            sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), 0));
+                            Thread.sleep(120000);
+                            sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), vel));
+                        }else if(FuelStation.getbomba2()){
+                            posto.start();
+                            System.out.println("Start thread posto2: " + System.nanoTime());
+                            FuelStation.setbomba2();
+                            double vel = (double) sumo.do_job_get(Car.getSpeed(carro.getIdAuto()));
+                            sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), 0));
+                            Thread.sleep(120000);
+                            sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), vel));
+                        }
+                        // else{
+                        //     FuelStation.setespera(true);
+                        //     while(!FuelStation.getbomba2() || !FuelStation.getbomba1()){
+                        //         posto.wait();
+                        //     }
+                        //     FuelStation.setespera(false);
+                        //     System.out.println("");
+                        // }
                     
-                    if(FuelStation.getbomba1()){
-                        FuelStation.setbomba1();
-                        posto.start();
-                        System.out.println("Start thread posto1: " + System.nanoTime());
-                        double vel = (double) sumo.do_job_get(Car.getSpeed(carro.getIdAuto()));
-                        sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), 0));
-                        Thread.sleep(120000);
-                        sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), vel));
-                    }else if(FuelStation.getbomba2()){
-                        posto.start();
-                        System.out.println("Start thread posto2: " + System.nanoTime());
-                        FuelStation.setbomba2();
-                        double vel = (double) sumo.do_job_get(Car.getSpeed(carro.getIdAuto()));
-                        sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), 0));
-                        Thread.sleep(120000);
-                        sumo.do_job_set(Vehicle.setSpeed(carro.getIdAuto(), vel));
+                        Thread.sleep(1000);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                       e.printStackTrace();
+                     } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-                    // else{
-                    //     FuelStation.setespera(true);
-                    //     while(!FuelStation.getbomba2() || !FuelStation.getbomba1()){
-                    //         posto.wait();
-                    //     }
-                    //     FuelStation.setespera(false);
-                    //     System.out.println("");
-                    // }
-                
-                    Thread.sleep(1000);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                   e.printStackTrace();
-                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
+                
             }
-            
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         System.out.println("Fim run thread motorista: "+txtNome + " "  + System.nanoTime());
         System.err.println();
@@ -310,6 +320,7 @@ public class Driver extends Thread{
         BotPayment botPayment = new BotPayment(contaFuelStation, fuelDivida);
         Thread t1 = new Thread(botPayment);
         t1.start();
+        System.out.println("Start thread botPayment: " + System.nanoTime());
     }
 
     public int getConta(){

@@ -50,18 +50,18 @@ public class Main {
         Company.main(args, sumo);
 
 
-        for(int i=0; i<2;i++){
-            Car carro = new Car(true, ("CAR"+i) , sumo,fuelType, fuelPrice, i);
-            Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*1, (i*1)+1);
-            System.out.println("Start thread motorista: " + System.nanoTime());
-            Thread.sleep(100);
-            motoristas.add(motorista);         
-        }
-        motoristas.get(0).start();  
-        motoristas.get(1).start(); 
+        // for(int i=0; i<2;i++){
+        //     Car carro = new Car(true, ("CAR"+i) , sumo,fuelType, fuelPrice, i);
+        //     Driver motorista = new Driver(carro,  sumo, ("Motorista"+i), i, i*1, (i*1)+1);
+        //     System.out.println("Start thread motorista: " + System.nanoTime());
+        //     Thread.sleep(100);
+        //     motoristas.add(motorista);         
+        // }
+        // motoristas.get(0).start();  
+        // motoristas.get(1).start(); 
 
-        motoristas.get(0).join();  
-        motoristas.get(1).join();  
+        // motoristas.get(0).join();  
+        // motoristas.get(1).join();  
 
         Car_rec carro_rec = new Car_rec(true, ("CARrec_0") , sumo,fuelType, fuelPrice, 0);
         Driver_rec motorista_rec = new Driver_rec(carro_rec,  sumo, "Motorista_0", 0, 0, 1);

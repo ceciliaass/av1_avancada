@@ -38,7 +38,6 @@ public class Account extends Thread {
         }else{
             System.out.println("Acesso incorreto");
         }
-
     }
 
     public synchronized double getSaldo(String login, String senha){

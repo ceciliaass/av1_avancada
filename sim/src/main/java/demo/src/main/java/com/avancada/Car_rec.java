@@ -195,7 +195,7 @@ public class Car_rec extends Vehicle implements Runnable {
 		for (int i = 0; i<y.length ; i++){
 			vels[i] = 3000/y[i];
 		}
-		relatorio_reconciliação(900.0-tempo_total,tempo_total,diferenca, (double) sumo.do_job_get(getSpeed(this.idAuto)), y, vels);
+		relatorio_reconciliação(780.0-tempo_total,tempo_total,diferenca, (double) sumo.do_job_get(getSpeed(this.idAuto)), y, vels);
 		return 3000/res[1];
 	}
 
